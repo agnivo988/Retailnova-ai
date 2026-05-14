@@ -1,178 +1,236 @@
-# RetailNova AI 🚀 
+# 🚀 RetailNova AI — Enterprise AI Retail OS
 
-**The Next-Generation Enterprise AI Retail Operating System**
+**The Next-Generation Cinematic Intelligence Ecosystem for Smart Retail Automation.**
 
 [![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)]()
 [![Next.js](https://img.shields.io/badge/Next.js-15.x-black?logo=next.js)]()
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)]()
+[![Three.js](https://img.shields.io/badge/Three.js-WebGL-black?logo=three.js)]()
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql)]()
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)]()
 
-RetailNova AI is a futuristic, enterprise-grade AI-powered retail intelligence ecosystem—a centralized smart store operating system designed for supermarkets, hypermarkets, shopping malls, and large retail chains. 
-
-The platform acts as a complete AI Retail Store Assistant, merging high-fidelity cyberpunk-inspired visualizations with robust, scalable microservices to deliver real-time operational intelligence.
+RetailNova AI is a futuristic, enterprise-grade AI-powered retail intelligence platform. It transforms traditional retail spaces into autonomous, data-driven environments by merging high-fidelity cinematic visualizations with a robust, scalable microservices backend.
 
 ---
 
-## 1. Project Overview
+## 🎯 Goal: Full Feature Enablement
 
-**What is RetailNova AI?**
-RetailNova AI transforms physical retail spaces into highly optimized, data-driven environments. By leveraging Computer Vision, Natural Language Processing, and Predictive Analytics, it bridges the gap between digital e-commerce efficiency and the physical shopping experience.
-
----
-
-## 2. Features
-
-### Core AI Modules
-- 👁️ **Computer Vision System**: Real-time shelf health analysis and object detection.
-- 🗺️ **Smart Indoor Navigation**: Interactive 3D/2D store map with AI product locator.
-- 📊 **Crowd Congestion AI**: Predictive heatmap visualization and density tracking.
-- 🎤 **Multilingual Voice Assistant**: NLP-powered customer support across 6 languages.
-- 📦 **Inventory Intelligence**: AI-driven demand forecasting and stock health monitoring.
-- ⚡ **Restocking Engine**: Automated urgency-scored task assignment for staff workflows.
-- 🛡️ **Security & Safety**: Threat detection and anomalous behavior tracking.
+This guide ensures **all AI-integrated services, authentication (login/signup), backend connections, and real-time systems** are enabled properly. Follow these steps to ensure **no feature is left disconnected or partially configured**.
 
 ---
 
-## 3. System Architecture
+## 1. 🔐 Authentication System (Login & Signup FULL SETUP)
 
-RetailNova AI follows a scalable, modular, API-first enterprise architecture.
+### Implement & Ensure Connection:
+* **Frontend Auth Pages:**
+  * `/signup`
+  * `/login`
+* **Backend APIs:**
+  * `POST /api/auth/signup`
+  * `POST /api/auth/login`
+  * `GET /api/auth/me`
 
-- **Frontend**: Next.js (App Router), Zustand (State), Tailwind CSS v4, Framer Motion, Three.js/React Three Fiber.
-- **Backend**: Node.js, Express.js, MVC + Service pattern, WebSocket integration.
-- **Database**: **PostgreSQL** (Primary Relational Database managed by **Prisma ORM**), Redis (High-speed caching & Pub/Sub).
-- **AI Services**: Isolated Python Fast API microservices exposed via an API Gateway.
-
----
-
-## 4. Environment Variables Setup
-
-Ensure the following variables are configured correctly before starting the application:
-
-**Frontend (`frontend/.env.local`)**
+### Required Config (Backend `.env`):
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-SOCKET_URL=http://localhost:5000
-NEXT_PUBLIC_AI_ASSISTANT_KEY=mock_openai_key
+JWT_SECRET=your_super_secure_secret
+JWT_EXPIRES_IN=7d
 ```
 
-**Backend (`backend/.env`)**
+### Manual Tasks:
+* Run Prisma migration for the User table.
+* Ensure password hashing using `bcrypt`.
+* Ensure the JWT token is stored in HTTP-only cookies or secure local storage.
+* Protect private routes in the frontend using Next.js middleware.
+
+---
+
+## 2. 🤖 AI SERVICES INTEGRATION (IMPORTANT)
+
+### AI Microservice (Python)
+**Location:**
+```text
+ai-services/
+```
+
+### Required Config (AI Service `.env`):
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/retailnova_ai?schema=public
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=password
-POSTGRES_DB=retailnova_ai
-JWT_SECRET=retailnova_secret
-REDIS_URL=redis://localhost:6379
-PORT=5000
 AI_SERVICE_URL=http://localhost:8000
+GROQ_API_KEY=your_groq_key_here
+```
+
+### Manual Setup Needed:
+* Install Python dependencies:
+  ```bash
+  pip install -r requirements.txt
+  ```
+* Start the AI service:
+  ```bash
+  python app.py
+  ```
+
+### AI Features Enabled:
+* Shelf detection
+* Product recognition
+* Crowd analysis
+
+---
+
+## 3. 🧠 GROQ / LLM INTEGRATION
+
+### REQUIRED API KEY (MANDATORY)
+```env
+GROQ_API_KEY=your_groq_key_here
+```
+
+### Where Used:
+* Smart chatbot assistant
+* Inventory prediction reasoning
+* Customer behavior insights
+
+### Manual Task:
+* Ensure backend route `/api/ai/chat` is connected.
+* Add rate limiting to prevent abuse.
+
+---
+
+## 4. 📡 REAL-TIME SYSTEM (SOCKET.IO)
+
+### Required Setup:
+**Backend (`backend/.env`):**
+```env
+SOCKET_PORT=5000
+```
+**Frontend (`frontend/.env.local`):**
+```env
+SOCKET_URL=http://localhost:5000
+```
+
+### Manual Steps:
+* Initialize the Socket server in Express.
+* Connect the frontend listener in:
+  * `lib/socket.ts`
+* Ensure the backend emits the following events:
+  * `inventory_update`
+  * `crowd_heatmap`
+  * `restock_alert`
+
+---
+
+## 5. 🗄️ DATABASE FULL CONNECTION (PRISMA)
+
+### Required Config (Backend `.env`):
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/retailnova_ai
+```
+
+### Manual Steps:
+```bash
+npx prisma generate
+npx prisma migrate dev
+npx prisma studio
+```
+
+### Ensure Tables Exist:
+* Users
+* Products
+* Inventory
+* Analytics logs
+* AI predictions
+
+---
+
+## 6. ⚡ REDIS CACHE SETUP
+
+### Required Config (Backend `.env`):
+```env
+REDIS_URL=redis://localhost:6379
+```
+
+### Manual Tasks:
+* Enable caching in the backend for:
+  * Product queries
+  * AI responses
+  * Dashboard metrics
+
+---
+
+## 7. 🌐 FRONTEND ↔ BACKEND CONNECTION
+
+### Required Config (Frontend `.env.local`):
+```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
 SOCKET_URL=http://localhost:5000
 ```
 
+### Manual Tasks:
+* Ensure Axios or fetch `baseURL` is configured properly.
+* Add a global API handler:
+  * `lib/api.ts`
+* Add an auth token interceptor for secure requests.
+
+
+
 ---
 
-## 5. Setup & Installation Guide
+# 🚀 FINAL STEP-BY-STEP RUN GUIDE
 
-### Option 1: Docker Setup (Recommended)
-This requires Docker and Docker Compose. It spins up all services instantly.
-
+### STEP 1: Clone the Repository
 ```bash
-docker-compose up -d --build
+git clone https://github.com/Samar2442/Retailnova-ai.git
+cd Retailnova-ai
 ```
-This will start:
-- Frontend (Port 3000)
-- Backend (Port 5000)
-- PostgreSQL (Port 5432)
-- Redis (Port 6379)
-- AI Gateway (Port 8000)
 
-### Option 2: Manual / Local Setup
+### STEP 2: Setup Environments
+Setup all `.env` files across the project (`frontend`, `backend`, and `ai-services`).
 
-**1. PostgreSQL Setup:**
-Ensure PostgreSQL is running locally on port `5432` with username `postgres` and password `password`.
-
-**2. Prisma Setup & Migrations:**
+### STEP 3: Start Backend & Database
 ```bash
 cd backend
 npm install
-npx prisma generate
-npx prisma db push
-# Or to run full migrations: npx prisma migrate dev
-```
-
-**3. Start Backend:**
-```bash
-cd backend
+npx prisma migrate dev
 npm run dev
-# Server runs on http://localhost:5000
 ```
 
-**4. Start Frontend:**
+### STEP 4: Start Frontend
+Open a new terminal:
 ```bash
 cd frontend
 npm install
 npm run dev
-# Dashboard available on http://localhost:3000
 ```
 
-**5. Start AI Services:**
+### STEP 5: Start Python AI Services
+Open a new terminal:
 ```bash
 cd ai-services
-python -m venv venv
-# Windows: .\venv\Scripts\Activate.ps1
-# Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
-python api-gateway/main.py
-# Gateway runs on http://localhost:8000
+python app.py
 ```
 
----
-
-## 6. API Documentation
-
-All APIs are documented and versioned (`/api/v1`).
-- `POST /api/v1/auth/login` - Authenticates user and returns token.
-- `GET /api/v1/analytics` - Fetches real-time financial metrics.
-- `GET /api/v1/inventory` - Retrieves current inventory and shelf statuses.
-- `GET /api/v1/crowd` - Fetches crowd density and heatmap analytics.
-- `GET /api/v1/ai` - AI predictions and general model outputs.
-
-**Standard Response Format:**
-```json
-{
-  "success": true,
-  "data": { ... },
-  "error": null
-}
-```
+### STEP 6: External Services
+Start your local instances of **Redis** and **PostgreSQL**.
 
 ---
 
-## 7. Workflow Explanation
+# ⚠️ IMPORTANT NOTES
 
-1. **Computer Vision & Sensor Input**: Cameras detect an empty shelf.
-2. **AI Inference**: The Python AI Server processes the input and confirms low stock.
-3. **Database Transaction**: The Express Backend records the event in PostgreSQL via Prisma.
-4. **Real-time Broadcast**: The Backend emits a WebSocket event.
-5. **UI Update**: The Next.js frontend instantly updates the Live Dashboard without refreshing.
-
----
-
-## 8. Troubleshooting Guide
-
-### ❌ PostgreSQL Database Not Connecting
-**Fix:** Verify that PostgreSQL is running. If running locally (without Docker), ensure the password is set to `password` for user `postgres`. Use `npx prisma db push` to initialize tables.
-
-### ❌ APIs Failing or Returning 404
-**Fix:** Ensure backend server is running on `http://localhost:5000` and `NEXT_PUBLIC_API_URL` is set correctly in `frontend/.env.local` without trailing slashes. Check Express routes in `src/routes/index.ts`.
-
-### ❌ Dummy Data Showing Up
-**Fix:** The frontend is configured to fetch from the DB. Run Prisma migrations and seed your database.
-
-### ❌ AI Services Not Working
-**Fix:** Ensure the Python virtual environment is activated, dependencies from `requirements.txt` are installed, and `uvicorn` is running the `main.py` gateway.
+* **AI features WILL NOT work** without a valid `GROQ_API_KEY`.
+* **Authentication WILL NOT work** without a defined `JWT_SECRET`.
+* **Real-time dashboard updates** require the Socket server running.
+* **Database must be migrated** before starting the backend server.
+* **Python AI service must run separately** using the unified `app.py`.
 
 ---
-*Built for the Future of Retail.*
+
+# 💡 RESULT AFTER THIS SETUP
+
+* ✔ **Fully working Login/Signup**
+* ✔ **AI-powered assistant active**
+* ✔ **Real-time retail dashboard**
+* ✔ **Computer vision pipeline running**
+* ✔ **Database fully synced**
+* ✔ **Redis caching enabled**
+* ✔ **End-to-end microservice architecture**
+
+---
+*Built with ❤️ for the future of retail by the Samar2442 team.*

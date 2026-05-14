@@ -9,12 +9,12 @@ const HeroVisualization = dynamic(() => import("./HeroVisualization"), { ssr: fa
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-20 pb-16 overflow-hidden bg-[#030712]">
+    <section className="relative min-h-screen flex items-center justify-center pt-20 pb-16 overflow-hidden">
       <div className="container-center relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center justify-center">
           
           {/* Left Side Content */}
-          <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left z-20">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -30,7 +30,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-5xl sm:text-6xl xl:text-7xl font-black leading-[1.1] font-[family-name:var(--font-orbitron)] mb-6"
+              className="text-5xl sm:text-6xl xl:text-8xl font-black leading-[0.95] font-[family-name:var(--font-orbitron)] mb-6"
             >
               <span className="text-white">REINVENTING</span><br />
               <span className="gradient-text">RETAIL WORLD</span><br />
@@ -41,7 +41,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="max-w-xl text-lg text-slate-400 font-[family-name:var(--font-space)] leading-relaxed mb-10"
+              className="max-w-md text-base sm:text-lg text-slate-400 font-[family-name:var(--font-space)] leading-relaxed mb-10"
             >
               The most advanced AI retail intelligence platform. Real-time shelf analysis, 
               predictive demand forecasting, and autonomous store operations in one 
@@ -65,7 +65,7 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Live Status Indicators */}
-            <div className="grid grid-cols-2 gap-6 pt-8 border-t border-white/5">
+            <div className="grid grid-cols-2 gap-6 pt-8 border-t border-white/5 w-full max-w-sm">
               {[
                 { label: "AI INFERENCE", value: "99.4%", icon: Activity, color: "text-emerald-400" },
                 { label: "SENSORS ACTIVE", value: "2,482", icon: Layers, color: "text-cyan-400" },
@@ -81,7 +81,7 @@ export default function HeroSection() {
                     <item.icon className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500 font-bold tracking-wider">{item.label}</div>
+                    <div className="text-[10px] text-slate-500 font-bold tracking-wider uppercase">{item.label}</div>
                     <div className="text-lg font-bold text-white font-mono">{item.value}</div>
                   </div>
                 </motion.div>
@@ -90,7 +90,7 @@ export default function HeroSection() {
           </div>
 
           {/* Right Side Cinematic 3D Scene */}
-          <div className="relative h-[500px] sm:h-[600px] lg:h-[800px] xl:h-[900px] w-full lg:block">
+          <div className="relative h-[600px] lg:h-[850px] xl:h-[950px] w-full flex items-center justify-center">
             <div className="absolute inset-0 z-0">
               <HeroVisualization />
             </div>
@@ -100,7 +100,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1, duration: 1 }}
-              className="absolute top-0 right-0 sm:right-4 xl:right-10 glass-strong p-6 rounded-2xl border-white/10 z-10 hidden md:block backdrop-blur-3xl shadow-2xl"
+              className="absolute top-10 right-0 xl:right-10 glass-strong p-6 rounded-2xl border-white/10 z-10 hidden xl:block backdrop-blur-3xl shadow-2xl"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(52,211,153,1)]" />

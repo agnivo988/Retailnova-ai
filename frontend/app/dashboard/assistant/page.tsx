@@ -60,7 +60,7 @@ export default function AssistantPage() {
 
     try {
       const { default: api } = await import('@/lib/api');
-      const res = await api.post('/voice', { text, language });
+      const res = await api.post('/ai/voice', { text, language });
       
       const aiMsg: Message = { 
         id: (Date.now() + 1).toString(), 

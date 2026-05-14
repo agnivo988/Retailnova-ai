@@ -57,6 +57,7 @@ model Product {
   sku         String      @unique
   name        String
   price       Float
+  stock       Int         @default(0)
   categoryId  String
   category    Category    @relation(fields: [categoryId], references: [id])
   inventory   Inventory[]
@@ -216,3 +217,11 @@ model Analytics {
   value       Float
   timestamp   DateTime  @default(now())
 }
+
+model InventoryLog {
+  id        String   @id @default(cuid())
+  productId String
+  change    Int
+  createdAt DateTime @default(now())
+}
+

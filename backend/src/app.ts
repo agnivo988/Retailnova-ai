@@ -25,6 +25,23 @@ app.use(express.json());
 // API Routes
 app.use('/api/v1', apiRoutes);
 
+// AI Proxy Route
+app.post("/api/ai/chat", async (req, res) => {
+  try {
+    const aiUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+    const response = await fetch(`${aiUrl}/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body || {}),
+    });
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: "AI Service connection failed" });
+  }
+});
+
 // Base Route
 app.get('/', (req: Request, res: Response) => {
   res.json({ success: true, message: 'RetailNova AI Enterprise API is running' });
@@ -36,11 +53,17 @@ app.use(errorMiddleware);
 
 // Real-time WebSockets setup
 io.on('connection', (socket) => {
-  console.log('📡 Client connected:', socket.id);
+  console.log('📡 User connected:', socket.id);
   
+  socket.emit("welcome", "RetailNova Live");
+
   socket.on('join_store', (storeId) => {
     socket.join(`store_${storeId}`);
     console.log(`👤 Client ${socket.id} joined store: ${storeId}`);
+  });
+
+  socket.on("inventory_update", (data) => {
+    io.emit("inventory_update", data);
   });
 
   socket.on('disconnect', () => {

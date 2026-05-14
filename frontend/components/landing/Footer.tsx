@@ -6,7 +6,7 @@ import { Zap, Globe, MessageCircle, ExternalLink, ArrowUp, Cpu, Shield, Activity
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#030712] pt-24 pb-12 border-t border-white/5 overflow-hidden">
+    <footer className="relative pt-24 pb-12 border-t border-white/5 overflow-hidden">
       <div className="container-center relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
           

@@ -1,153 +1,131 @@
 "use client";
 
-import { useRef, useMemo, useState, useEffect } from "react";
+import { useRef, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { Float, MeshDistortMaterial, MeshWobbleMaterial, Sphere } from "@react-three/drei";
+import { 
+  Float, Sphere, Points, PointMaterial, Stars, 
+  PerspectiveCamera, Float as FloatDrei
+} from "@react-three/drei";
 
-/* ============ Floating Data Cubes ============ */
-function FloatingCubes({ count = 12 }) {
-  const cubes = useMemo(() => {
-    return Array.from({ length: count }, () => ({
-      position: [
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 20,
-        (Math.random() - 0.5) * 15,
-      ] as [number, number, number],
-      scale: Math.random() * 0.5 + 0.2,
-      speed: Math.random() * 0.5 + 0.2,
-      color: Math.random() > 0.5 ? "#00e5ff" : "#a855f7",
-    }));
-  }, [count]);
+/* ============ 1. GALACTIC DUST & PARTICLES ============ */
+function GalacticParticles({ count = 2000 }) {
+  const points = useMemo(() => {
+    const p = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      // Create a galactic distribution (more dense in center)
+      const radius = Math.random() * 50;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos((Math.random() * 2) - 1);
+      
+      p[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      p[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      p[i * 3 + 2] = radius * Math.cos(phi);
 
-  return (
-    <group>
-      {cubes.map((cube, i) => (
-        <Float
-          key={i}
-          speed={cube.speed * 2}
-          rotationIntensity={2}
-          floatIntensity={2}
-          position={cube.position}
-        >
-          <mesh scale={cube.scale}>
-            <boxGeometry args={[1, 1, 1]} />
-            <meshPhysicalMaterial
-              color={cube.color}
-              emissive={cube.color}
-              emissiveIntensity={2}
-              transparent
-              opacity={0.4}
-              roughness={0}
-              metalness={1}
-            />
-          </mesh>
-        </Float>
-      ))}
-    </group>
-  );
-}
-
-/* ============ Neural Grid with Interconnected Nodes ============ */
-function NeuralGrid() {
-  const group = useRef<THREE.Group>(null);
-  const { mouse } = useThree();
-
-  const [nodes, connections] = useMemo(() => {
-    const points: THREE.Vector3[] = [];
-    for (let i = 0; i < 40; i++) {
-      points.push(new THREE.Vector3(
-        (Math.random() - 0.5) * 40,
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 10
-      ));
-    }
-
-    const lines: [number, number][] = [];
-    for (let i = 0; i < points.length; i++) {
-      for (let j = i + 1; j < points.length; j++) {
-        if (points[i].distanceTo(points[j]) < 10) {
-          lines.push([i, j]);
-        }
+      // Random space colors (cyan, purple, white)
+      const mix = Math.random();
+      if (mix < 0.3) {
+        colors[i * 3] = 0; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1; // Cyan
+      } else if (mix < 0.6) {
+        colors[i * 3] = 0.6; colors[i * 3 + 1] = 0.3; colors[i * 3 + 2] = 1; // Purple
+      } else {
+        colors[i * 3] = 1; colors[i * 3 + 1] = 1; colors[i * 3 + 2] = 1; // White
       }
     }
-    return [points, lines];
-  }, []);
+    return { positions: p, colors };
+  }, [count]);
+
+  const ref = useRef<THREE.Points>(null);
 
   useFrame((state) => {
-    if (!group.current) return;
-    // Smooth mouse parallax
-    group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, mouse.y * 0.1, 0.05);
-    group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, mouse.x * 0.1, 0.05);
-    group.current.position.z = Math.sin(state.clock.elapsedTime * 0.5) * 2;
+    if (!ref.current) return;
+    ref.current.rotation.y = state.clock.getElapsedTime() * 0.03;
+    ref.current.rotation.x = state.clock.getElapsedTime() * 0.01;
   });
 
   return (
-    <group ref={group}>
-      {connections.map(([i, j], idx) => (
-        <line key={idx}>
-          <bufferGeometry attach="geometry">
-            <bufferAttribute
-              attach="attributes-position"
-              count={2}
-              array={new Float32Array([
-                nodes[i].x, nodes[i].y, nodes[i].z,
-                nodes[j].x, nodes[j].y, nodes[j].z,
-              ])}
-              itemSize={3}
+    <Points ref={ref} positions={points.positions} colors={points.colors} stride={3} frustumCulled={false}>
+      <PointMaterial
+        transparent
+        vertexColors
+        size={0.12}
+        sizeAttenuation={true}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        opacity={0.6}
+      />
+    </Points>
+  );
+}
+
+/* ============ 2. NEBULA GLOWS ============ */
+function NebulaClouds() {
+  const clouds = useMemo(() => {
+    return Array.from({ length: 6 }, () => ({
+      position: [
+        (Math.random() - 0.5) * 60,
+        (Math.random() - 0.5) * 60,
+        (Math.random() - 0.5) * 30,
+      ] as [number, number, number],
+      scale: Math.random() * 15 + 10,
+      color: Math.random() > 0.5 ? "#00e5ff" : "#a855f7",
+      speed: Math.random() * 0.2 + 0.1,
+    }));
+  }, []);
+
+  return (
+    <group>
+      {clouds.map((c, i) => (
+        <FloatDrei key={i} speed={c.speed} rotationIntensity={1} floatIntensity={1} position={c.position}>
+          <Sphere args={[1, 32, 32]} scale={c.scale}>
+            <meshBasicMaterial
+              color={c.color}
+              transparent
+              opacity={0.03}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
             />
-          </bufferGeometry>
-          <lineBasicMaterial
-            color="#00e5ff"
-            transparent
-            opacity={0.05}
-            blending={THREE.AdditiveBlending}
-          />
-        </line>
-      ))}
-      {nodes.map((pos, i) => (
-        <mesh key={i} position={pos}>
-          <sphereGeometry args={[0.05, 8, 8]} />
-          <meshBasicMaterial color="#a855f7" transparent opacity={0.3} />
-        </mesh>
+          </Sphere>
+        </FloatDrei>
       ))}
     </group>
   );
 }
 
-/* ============ Data Streams ============ */
-function DataStreams() {
-  const count = 20;
-  const lines = useMemo(() => {
-    return Array.from({ length: count }, () => ({
-      x: (Math.random() - 0.5) * 50,
-      z: (Math.random() - 0.5) * 20,
-      speed: Math.random() * 0.2 + 0.1,
-      length: Math.random() * 10 + 5,
+/* ============ 3. SHOOTING STARS ============ */
+function ShootingStars() {
+  const stars = useMemo(() => {
+    return Array.from({ length: 5 }, () => ({
+      position: [
+        (Math.random() - 0.5) * 100,
+        Math.random() * 50 + 50,
+        (Math.random() - 0.5) * 50,
+      ] as [number, number, number],
+      speed: Math.random() * 1.5 + 1,
     }));
   }, []);
 
-  const meshRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    meshRef.current.children.forEach((child, i) => {
-      child.position.y -= lines[i].speed;
-      if (child.position.y < -25) child.position.y = 25;
+  useFrame(() => {
+    if (!groupRef.current) return;
+    groupRef.current.children.forEach((child, i) => {
+      child.position.y -= stars[i].speed;
+      child.position.x -= stars[i].speed * 0.5;
+      if (child.position.y < -50) {
+        child.position.y = 50;
+        child.position.x = (Math.random() - 0.5) * 100;
+      }
     });
   });
 
   return (
-    <group ref={meshRef}>
-      {lines.map((line, i) => (
-        <mesh key={i} position={[line.x, 25, line.z]}>
-          <boxGeometry args={[0.02, line.length, 0.02]} />
-          <meshBasicMaterial
-            color="#00e5ff"
-            transparent
-            opacity={0.1}
-            blending={THREE.AdditiveBlending}
-          />
+    <group ref={groupRef}>
+      {stars.map((_, i) => (
+        <mesh key={i}>
+          <boxGeometry args={[0.05, 2, 0.05]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.2} blending={THREE.AdditiveBlending} />
         </mesh>
       ))}
     </group>
@@ -155,43 +133,51 @@ function DataStreams() {
 }
 
 function Scene() {
+  const { mouse } = useThree();
+  const sceneRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (!sceneRef.current) return;
+    // Smooth Mouse Parallax
+    sceneRef.current.rotation.y = THREE.MathUtils.lerp(sceneRef.current.rotation.y, mouse.x * 0.15, 0.05);
+    sceneRef.current.rotation.x = THREE.MathUtils.lerp(sceneRef.current.rotation.x, -mouse.y * 0.15, 0.05);
+  });
+
   return (
-    <>
-      <color attach="background" args={["#030712"]} />
-      <fog attach="fog" args={["#030712", 5, 40]} />
+    <group ref={sceneRef}>
+      <Stars radius={100} depth={50} count={6000} factor={6} saturation={1} fade speed={2} />
+      <GalacticParticles count={3000} />
+      <NebulaClouds />
+      <ShootingStars />
       
-      <ambientLight intensity={0.2} />
-      <pointLight position={[10, 10, 10]} intensity={1.5} color="#00e5ff" />
-      <pointLight position={[-10, -10, -10]} intensity={1.5} color="#a855f7" />
+      <ambientLight intensity={0.1} />
+      <pointLight position={[30, 30, 30]} intensity={1} color="#00e5ff" />
+      <pointLight position={[-30, -30, -30]} intensity={1} color="#a855f7" />
 
-      <NeuralGrid />
-      <FloatingCubes count={15} />
-      <DataStreams />
-
-      {/* Cyberpunk Ground Grid */}
-      <gridHelper 
-        args={[100, 50, "#00e5ff", "#0a0f1e"]} 
-        position={[0, -12, 0]} 
-        rotation={[0, 0, 0]}
-      >
-        <meshBasicMaterial attach="material" transparent opacity={0.05} />
-      </gridHelper>
-    </>
+      {/* Cyberpunk Ground Grid (Subtle) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -25, 0]}>
+        <planeGeometry args={[200, 200, 50, 50]} />
+        <meshBasicMaterial color="#00e5ff" wireframe transparent opacity={0.02} />
+      </mesh>
+    </group>
   );
 }
 
 export default function ThreeBackground() {
   return (
-    <div className="fixed inset-0 -z-10 bg-[#030712]">
-      <Canvas
-        camera={{ position: [0, 0, 20], fov: 50 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
-      >
+    <div className="fixed inset-0 -z-10 bg-[#020617] overflow-hidden">
+      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 40], fov: 45 }}>
+        <color attach="background" args={["#020617"]} />
+        <fog attach="fog" args={["#020617", 20, 80]} />
         <Scene />
+        <PerspectiveCamera makeDefault position={[0, 0, 40]} />
       </Canvas>
-      {/* Overlay Glow */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(3,7,18,0.8)_100%)]" />
+      
+      {/* Cinematic Overlays */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(2,6,23,0.8)_100%)]" />
+      
+      {/* Subtle Scanlines */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
     </div>
   );
 }

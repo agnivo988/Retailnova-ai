@@ -19,7 +19,7 @@ export default function LivePreviewSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section className="section-spacing relative bg-[#030712]" ref={ref}>
+    <section className="section-spacing relative" ref={ref}>
       <div className="container-center relative z-10">
         
         <div className="text-center mb-16">
