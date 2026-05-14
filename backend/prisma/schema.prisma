@@ -1,0 +1,218 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  permissions String[]
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+  storeId   String?
+  store     Store?   @relation(fields: [storeId], references: [id])
+  tasks     StaffTask[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Store {
+  id          String      @id @default(uuid())
+  name        String
+  location    String
+  users       User[]
+  shelves     Shelf[]
+  inventory   Inventory[]
+  analytics   Analytics[]
+  crowdStats  CrowdAnalytics[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  sku         String      @unique
+  name        String
+  price       Float
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  inventory   Inventory[]
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Shelf {
+  id          String      @id @default(uuid())
+  storeId     String
+  store       Store       @relation(fields: [storeId], references: [id])
+  zone        String
+  capacity    Int
+  inventory   Inventory[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Inventory {
+  id          String    @id @default(uuid())
+  storeId     String
+  store       Store     @relation(fields: [storeId], references: [id])
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  shelfId     String
+  shelf       Shelf     @relation(fields: [shelfId], references: [id])
+  stock       Int       @default(0)
+  status      String    @default("normal") // normal, low, critical
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model StaffTask {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  assigneeId  String?
+  assignee    User?     @relation(fields: [assigneeId], references: [id])
+  status      String    @default("pending") // pending, in-progress, completed
+  urgency     Int       @default(50)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// Map RestockTask to StaffTask conceptually, or keep separate if needed
+model RestockTask {
+  id          String    @id @default(uuid())
+  shelfId     String
+  items       String[]
+  status      String    @default("pending")
+  urgency     Int       @default(50)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CrowdAnalytics {
+  id          String    @id @default(uuid())
+  storeId     String
+  store       Store     @relation(fields: [storeId], references: [id])
+  zone        String
+  density     Float
+  timestamp   DateTime  @default(now())
+}
+
+model NavigationRoute {
+  id          String    @id @default(uuid())
+  startPoint  String
+  endPoint    String
+  distance    Float
+  createdAt   DateTime  @default(now())
+}
+
+model Notification {
+  id          String    @id @default(uuid())
+  title       String
+  message     String
+  type        String
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
+
+model VoiceQuery {
+  id          String    @id @default(uuid())
+  query       String
+  intent      String
+  response    String
+  language    String    @default("en")
+  createdAt   DateTime  @default(now())
+}
+
+model AiPrediction {
+  id          String    @id @default(uuid())
+  modelType   String
+  input       Json
+  output      Json
+  confidence  Float
+  createdAt   DateTime  @default(now())
+}
+
+model CustomerActivity {
+  id          String    @id @default(uuid())
+  customerId  String
+  action      String
+  details     Json?
+  timestamp   DateTime  @default(now())
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  customerId  String
+  totalAmount Float
+  status      String      @default("completed")
+  items       OrderItem[]
+  createdAt   DateTime    @default(now())
+}
+
+model OrderItem {
+  id          String    @id @default(uuid())
+  orderId     String
+  order       Order     @relation(fields: [orderId], references: [id])
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  quantity    Int
+  price       Float
+}
+
+model Report {
+  id          String    @id @default(uuid())
+  title       String
+  type        String
+  data        Json
+  generatedAt DateTime  @default(now())
+}
+
+model SystemLog {
+  id          String    @id @default(uuid())
+  level       String
+  message     String
+  metadata    Json?
+  timestamp   DateTime  @default(now())
+}
+
+model SecurityLog {
+  id          String    @id @default(uuid())
+  event       String
+  severity    String
+  details     Json?
+  timestamp   DateTime  @default(now())
+}
+
+model Analytics {
+  id          String    @id @default(uuid())
+  storeId     String
+  store       Store     @relation(fields: [storeId], references: [id])
+  metric      String
+  value       Float
+  timestamp   DateTime  @default(now())
+}
