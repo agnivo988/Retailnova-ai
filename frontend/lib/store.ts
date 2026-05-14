@@ -73,8 +73,14 @@ export const useAppStore = create<AppState>((set) => ({
   theme: "dark",
 
   setUser: (user) => set({ user }),
-  login: (user) => set({ user, isAuthenticated: true }),
-  logout: () => set({ user: null, isAuthenticated: false }),
+  login: (user) => {
+    localStorage.setItem("token", "demo-token");
+    set({ user, isAuthenticated: true });
+  },
+  logout: () => {
+    localStorage.removeItem("token");
+    set({ user: null, isAuthenticated: false });
+  },
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setCurrentView: (view) => set({ currentView: view }),
