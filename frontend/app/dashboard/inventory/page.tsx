@@ -75,7 +75,7 @@ export default function InventoryPage() {
             </thead>
             <tbody>
               {inventory.map((item, i) => (
-                <motion.tr key={item.sku} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}>
+                <motion.tr key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}>
                   <td className="font-mono text-xs text-slate-500">{item.sku}</td>
                   <td className="font-medium text-white">{item.name}</td>
                   <td className="text-slate-400">{item.category}</td>

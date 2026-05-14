@@ -74,7 +74,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="glass-strong p-10 border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="glass-strong p-10 border-white/10 shadow-2xl relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#181f2a]/80 to-[#232946]/90 backdrop-blur-xl">
           {/* Animated Background Line */}
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-shimmer" />
 
