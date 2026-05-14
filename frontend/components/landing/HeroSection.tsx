@@ -9,12 +9,12 @@ const HeroVisualization = dynamic(() => import("./HeroVisualization"), { ssr: fa
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center pt-20 pb-16 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section className="relative min-h-screen flex items-center justify-center pt-20 pb-16 overflow-hidden bg-[#030712]">
+      <div className="container-center relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center justify-center">
           
           {/* Left Side Content */}
-          <div className="relative z-10 text-left">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -89,29 +89,50 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right Side 3D/Visuals */}
-          <div className="relative h-[500px] lg:h-[600px] w-full hidden lg:block">
-            <HeroVisualization />
+          {/* Right Side Cinematic 3D Scene */}
+          <div className="relative h-[500px] sm:h-[600px] lg:h-[800px] xl:h-[900px] w-full lg:block">
+            <div className="absolute inset-0 z-0">
+              <HeroVisualization />
+            </div>
             
-            {/* Floating UI Elements */}
+            {/* Immersive HUD Overlay */}
             <motion.div
-              animate={{ y: [0, -20, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              className="absolute top-10 right-10 glass p-4 rounded-2xl border-cyan-500/30 z-20"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1, duration: 1 }}
+              className="absolute top-0 right-0 sm:right-4 xl:right-10 glass-strong p-6 rounded-2xl border-white/10 z-10 hidden md:block backdrop-blur-3xl shadow-2xl"
             >
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] font-bold text-white uppercase tracking-tighter">Live Analysis</span>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(52,211,153,1)]" />
+                <span className="text-[11px] font-black text-white uppercase tracking-[0.2em] font-[family-name:var(--font-orbitron)]">
+                  OS_CORE_ACTIVE
+                </span>
               </div>
-              <div className="h-12 w-32 bg-white/5 rounded-lg flex items-end gap-1 p-2">
-                {[40, 70, 45, 90, 65, 80].map((h, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    className="flex-1 bg-cyan-400/40 rounded-t-sm"
-                  />
-                ))}
+              <div className="space-y-4">
+                <div className="flex items-end gap-1.5 h-20 w-48">
+                  {[40, 70, 45, 90, 65, 80, 55, 95, 40, 60].map((h, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ height: 0 }}
+                      animate={{ height: `${h}%` }}
+                      transition={{ delay: 1.2 + i * 0.05, duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
+                      className="flex-1 bg-gradient-to-t from-cyan-500/10 to-cyan-400/80 rounded-t-sm shadow-[0_0_10px_rgba(34,211,238,0.3)]"
+                    />
+                  ))}
+                </div>
+                <div className="pt-4 border-t border-white/5">
+                  <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
+                    <span>Neural Link</span>
+                    <span className="text-cyan-400">Stable</span>
+                  </div>
+                  <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      animate={{ x: ["-100%", "100%"] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className="w-1/3 h-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+                    />
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>

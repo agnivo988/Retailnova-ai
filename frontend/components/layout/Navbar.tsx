@@ -26,7 +26,7 @@ export default function Navbar() {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
       scrolled ? "bg-[#030712]/80 backdrop-blur-2xl border-b border-white/5 py-3" : "bg-transparent py-6"
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container-center">
         <div className="flex items-center justify-between">
           
           <Link href="/" className="flex items-center gap-3 group">

@@ -19,8 +19,8 @@ export default function LivePreviewSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section className="relative py-24 bg-[#030712]" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="section-spacing relative bg-[#030712]" ref={ref}>
+      <div className="container-center relative z-10">
         
         <div className="text-center mb-16">
           <motion.div
