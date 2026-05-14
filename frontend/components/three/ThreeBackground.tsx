@@ -1,127 +1,152 @@
 "use client";
 
-import { useRef, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useRef, useMemo, useState, useEffect } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { Float, MeshDistortMaterial, MeshWobbleMaterial, Sphere } from "@react-three/drei";
 
-/* ============ Particles ============ */
-function FloatingParticles({ count = 500 }: { count?: number }) {
-  const mesh = useRef<THREE.Points>(null);
-
-  const [positions, velocities] = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    const vel = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 40;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 40;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 40;
-      vel[i * 3] = (Math.random() - 0.5) * 0.005;
-      vel[i * 3 + 1] = (Math.random() - 0.5) * 0.005;
-      vel[i * 3 + 2] = (Math.random() - 0.5) * 0.005;
-    }
-    return [pos, vel];
+/* ============ Floating Data Cubes ============ */
+function FloatingCubes({ count = 12 }) {
+  const cubes = useMemo(() => {
+    return Array.from({ length: count }, () => ({
+      position: [
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 15,
+      ] as [number, number, number],
+      scale: Math.random() * 0.5 + 0.2,
+      speed: Math.random() * 0.5 + 0.2,
+      color: Math.random() > 0.5 ? "#00e5ff" : "#a855f7",
+    }));
   }, [count]);
 
-  useFrame(() => {
-    if (!mesh.current) return;
-    const geo = mesh.current.geometry;
-    const posAttr = geo.attributes.position as THREE.BufferAttribute;
-    const arr = posAttr.array as Float32Array;
-    for (let i = 0; i < count; i++) {
-      arr[i * 3] += velocities[i * 3];
-      arr[i * 3 + 1] += velocities[i * 3 + 1];
-      arr[i * 3 + 2] += velocities[i * 3 + 2];
-      // Wrap around
-      for (let j = 0; j < 3; j++) {
-        if (arr[i * 3 + j] > 20) arr[i * 3 + j] = -20;
-        if (arr[i * 3 + j] < -20) arr[i * 3 + j] = 20;
-      }
-    }
-    posAttr.needsUpdate = true;
-  });
-
   return (
-    <points ref={mesh}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.04}
-        color="#00e5ff"
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-        blending={THREE.AdditiveBlending}
-        depthWrite={false}
-      />
-    </points>
+    <group>
+      {cubes.map((cube, i) => (
+        <Float
+          key={i}
+          speed={cube.speed * 2}
+          rotationIntensity={2}
+          floatIntensity={2}
+          position={cube.position}
+        >
+          <mesh scale={cube.scale}>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshPhysicalMaterial
+              color={cube.color}
+              emissive={cube.color}
+              emissiveIntensity={2}
+              transparent
+              opacity={0.4}
+              roughness={0}
+              metalness={1}
+            />
+          </mesh>
+        </Float>
+      ))}
+    </group>
   );
 }
 
-/* ============ Neural Network Lines ============ */
-function NeuralNetwork() {
-  const linesRef = useRef<THREE.Group>(null);
+/* ============ Neural Grid with Interconnected Nodes ============ */
+function NeuralGrid() {
+  const group = useRef<THREE.Group>(null);
+  const { mouse } = useThree();
 
-  const nodes = useMemo(() => {
-    const n: THREE.Vector3[] = [];
-    for (let i = 0; i < 30; i++) {
-      n.push(
-        new THREE.Vector3(
-          (Math.random() - 0.5) * 20,
-          (Math.random() - 0.5) * 20,
-          (Math.random() - 0.5) * 10
-        )
-      );
+  const [nodes, connections] = useMemo(() => {
+    const points: THREE.Vector3[] = [];
+    for (let i = 0; i < 40; i++) {
+      points.push(new THREE.Vector3(
+        (Math.random() - 0.5) * 40,
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 10
+      ));
     }
-    return n;
-  }, []);
 
-  const connections = useMemo(() => {
-    const conn: [THREE.Vector3, THREE.Vector3][] = [];
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        if (nodes[i].distanceTo(nodes[j]) < 8) {
-          conn.push([nodes[i], nodes[j]]);
+    const lines: [number, number][] = [];
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        if (points[i].distanceTo(points[j]) < 10) {
+          lines.push([i, j]);
         }
       }
     }
-    return conn;
-  }, [nodes]);
+    return [points, lines];
+  }, []);
 
-  useFrame(({ clock }) => {
-    if (!linesRef.current) return;
-    linesRef.current.rotation.y = clock.elapsedTime * 0.02;
-    linesRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.01) * 0.1;
+  useFrame((state) => {
+    if (!group.current) return;
+    // Smooth mouse parallax
+    group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, mouse.y * 0.1, 0.05);
+    group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, mouse.x * 0.1, 0.05);
+    group.current.position.z = Math.sin(state.clock.elapsedTime * 0.5) * 2;
   });
 
   return (
-    <group ref={linesRef}>
-      {connections.map((pair, i) => {
-        const points = [pair[0], pair[1]];
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        return (
-          <line key={i} geometry={geometry}>
-            <lineBasicMaterial
-              color="#a855f7"
-              transparent
-              opacity={0.12}
-              blending={THREE.AdditiveBlending}
+    <group ref={group}>
+      {connections.map(([i, j], idx) => (
+        <line key={idx}>
+          <bufferGeometry attach="geometry">
+            <bufferAttribute
+              attach="attributes-position"
+              count={2}
+              array={new Float32Array([
+                nodes[i].x, nodes[i].y, nodes[i].z,
+                nodes[j].x, nodes[j].y, nodes[j].z,
+              ])}
+              itemSize={3}
             />
-          </line>
-        );
-      })}
+          </bufferGeometry>
+          <lineBasicMaterial
+            color="#00e5ff"
+            transparent
+            opacity={0.05}
+            blending={THREE.AdditiveBlending}
+          />
+        </line>
+      ))}
       {nodes.map((pos, i) => (
-        <mesh key={`node-${i}`} position={pos}>
-          <sphereGeometry args={[0.06, 8, 8]} />
+        <mesh key={i} position={pos}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshBasicMaterial color="#a855f7" transparent opacity={0.3} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ============ Data Streams ============ */
+function DataStreams() {
+  const count = 20;
+  const lines = useMemo(() => {
+    return Array.from({ length: count }, () => ({
+      x: (Math.random() - 0.5) * 50,
+      z: (Math.random() - 0.5) * 20,
+      speed: Math.random() * 0.2 + 0.1,
+      length: Math.random() * 10 + 5,
+    }));
+  }, []);
+
+  const meshRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    meshRef.current.children.forEach((child, i) => {
+      child.position.y -= lines[i].speed;
+      if (child.position.y < -25) child.position.y = 25;
+    });
+  });
+
+  return (
+    <group ref={meshRef}>
+      {lines.map((line, i) => (
+        <mesh key={i} position={[line.x, 25, line.z]}>
+          <boxGeometry args={[0.02, line.length, 0.02]} />
           <meshBasicMaterial
             color="#00e5ff"
             transparent
-            opacity={0.5}
+            opacity={0.1}
+            blending={THREE.AdditiveBlending}
           />
         </mesh>
       ))}
@@ -129,58 +154,44 @@ function NeuralNetwork() {
   );
 }
 
-/* ============ Neon Grid Floor ============ */
-function NeonGrid() {
-  const gridRef = useRef<THREE.GridHelper>(null);
-
-  useFrame(({ clock }) => {
-    if (!gridRef.current) return;
-    gridRef.current.position.z = (clock.elapsedTime * 0.3) % 2;
-  });
-
-  return (
-    <gridHelper
-      ref={gridRef}
-      args={[80, 80, "#00e5ff", "#1a1a2e"]}
-      position={[0, -8, 0]}
-      rotation={[0, 0, 0]}
-      material-opacity={0.08}
-      material-transparent
-    />
-  );
-}
-
-/* ============ Scene Wrapper ============ */
 function Scene() {
   return (
     <>
-      <ambientLight intensity={0.1} />
-      <FloatingParticles count={400} />
-      <NeuralNetwork />
-      <NeonGrid />
+      <color attach="background" args={["#030712"]} />
+      <fog attach="fog" args={["#030712", 5, 40]} />
+      
+      <ambientLight intensity={0.2} />
+      <pointLight position={[10, 10, 10]} intensity={1.5} color="#00e5ff" />
+      <pointLight position={[-10, -10, -10]} intensity={1.5} color="#a855f7" />
+
+      <NeuralGrid />
+      <FloatingCubes count={15} />
+      <DataStreams />
+
+      {/* Cyberpunk Ground Grid */}
+      <gridHelper 
+        args={[100, 50, "#00e5ff", "#0a0f1e"]} 
+        position={[0, -12, 0]} 
+        rotation={[0, 0, 0]}
+      >
+        <meshBasicMaterial attach="material" transparent opacity={0.05} />
+      </gridHelper>
     </>
   );
 }
 
-/* ============ Exported Background Component ============ */
 export default function ThreeBackground() {
   return (
-    <div
-      className="fixed inset-0 -z-10"
-      style={{ pointerEvents: "none" }}
-    >
+    <div className="fixed inset-0 -z-10 bg-[#030712]">
       <Canvas
-        camera={{ position: [0, 0, 15], fov: 60 }}
-        dpr={[1, 1.5]}
-        gl={{
-          antialias: false,
-          alpha: true,
-          powerPreference: "high-performance",
-        }}
-        style={{ background: "transparent" }}
+        camera={{ position: [0, 0, 20], fov: 50 }}
+        dpr={[1, 2]}
+        gl={{ antialias: true, alpha: true }}
       >
         <Scene />
       </Canvas>
+      {/* Overlay Glow */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(3,7,18,0.8)_100%)]" />
     </div>
   );
 }

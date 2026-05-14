@@ -2,144 +2,121 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Eye,
-  Brain,
-  BarChart3,
-  Navigation,
-  Shield,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, Shield, Zap, Sparkles, Activity, Layers } from "lucide-react";
+import dynamic from "next/dynamic";
 
-const LIVE_STATS = [
-  { label: "Shelves Monitored", value: "2,847", icon: Eye, color: "cyan" },
-  { label: "AI Predictions/hr", value: "14.2K", icon: Brain, color: "purple" },
-  { label: "Revenue Optimized", value: "$2.4M", icon: BarChart3, color: "green" },
-  { label: "Stores Connected", value: "156", icon: Navigation, color: "pink" },
-];
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.15, duration: 0.6, ease: "easeOut" },
-  }),
-};
+const HeroVisualization = dynamic(() => import("./HeroVisualization"), { ssr: false });
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16">
-      {/* Radial gradient overlays */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px]" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 mb-8"
-        >
-          <span className="live-dot" />
-          <span className="text-xs font-medium text-cyan-400 tracking-wide uppercase">
-            AI-Powered Retail Intelligence — Live
-          </span>
-        </motion.div>
-
-        {/* Main Heading */}
-        <motion.h1
-          custom={0}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] font-[family-name:var(--font-outfit)] mb-6"
-        >
-          <span className="text-white">The Future of</span>
-          <br />
-          <span className="gradient-text">Retail Intelligence</span>
-          <br />
-          <span className="text-white">is Here</span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          custom={1}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="max-w-2xl mx-auto text-base sm:text-lg text-slate-400 leading-relaxed mb-10"
-        >
-          Next-generation AI operating system for smart retail — from computer vision
-          shelf monitoring to predictive analytics, indoor navigation, and multilingual
-          voice assistance.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div
-          custom={2}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
-        >
-          <Link href="/dashboard" className="btn-glow flex items-center gap-2 text-sm">
-            Launch Dashboard
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/login"
-            className="btn-neon flex items-center gap-2 text-sm"
-          >
-            <Shield className="w-4 h-4" />
-            Enterprise Login
-          </Link>
-        </motion.div>
-
-        {/* Live Stats Grid */}
-        <motion.div
-          custom={3}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto"
-        >
-          {LIVE_STATS.map((stat, i) => (
+    <section className="relative min-h-screen flex items-center pt-20 pb-16 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          
+          {/* Left Side Content */}
+          <div className="relative z-10 text-left">
             <motion.div
-              key={stat.label}
-              whileHover={{ scale: 1.03, y: -4 }}
-              className="glass-card p-5 text-center group cursor-default"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 mb-6"
             >
-              <div
-                className={`inline-flex p-2.5 rounded-xl mb-3 ${
-                  stat.color === "cyan"
-                    ? "bg-cyan-500/10 text-cyan-400"
-                    : stat.color === "purple"
-                    ? "bg-purple-500/10 text-purple-400"
-                    : stat.color === "green"
-                    ? "bg-emerald-500/10 text-emerald-400"
-                    : "bg-pink-500/10 text-pink-400"
-                }`}
-              >
-                <stat.icon className="w-5 h-5" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="text-[10px] font-bold text-cyan-400 tracking-[0.2em] uppercase">
+                Enterprise AI Retail OS v2.0
+              </span>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-5xl sm:text-6xl xl:text-7xl font-black leading-[1.1] font-[family-name:var(--font-orbitron)] mb-6"
+            >
+              <span className="text-white">REINVENTING</span><br />
+              <span className="gradient-text">RETAIL WORLD</span><br />
+              <span className="text-white/80">WITH AI.</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="max-w-xl text-lg text-slate-400 font-[family-name:var(--font-space)] leading-relaxed mb-10"
+            >
+              The most advanced AI retail intelligence platform. Real-time shelf analysis, 
+              predictive demand forecasting, and autonomous store operations in one 
+              unified holographic ecosystem.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-wrap gap-4 mb-12"
+            >
+              <Link href="/dashboard" className="btn-glow flex items-center gap-2 group">
+                ENTER DASHBOARD
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link href="/login" className="btn-neon flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                SECURITY PORTAL
+              </Link>
+            </motion.div>
+
+            {/* Live Status Indicators */}
+            <div className="grid grid-cols-2 gap-6 pt-8 border-t border-white/5">
+              {[
+                { label: "AI INFERENCE", value: "99.4%", icon: Activity, color: "text-emerald-400" },
+                { label: "SENSORS ACTIVE", value: "2,482", icon: Layers, color: "text-cyan-400" },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className={`p-2 rounded-lg bg-white/5 ${item.color}`}>
+                    <item.icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-500 font-bold tracking-wider">{item.label}</div>
+                    <div className="text-lg font-bold text-white font-mono">{item.value}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Side 3D/Visuals */}
+          <div className="relative h-[500px] lg:h-[600px] w-full hidden lg:block">
+            <HeroVisualization />
+            
+            {/* Floating UI Elements */}
+            <motion.div
+              animate={{ y: [0, -20, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              className="absolute top-10 right-10 glass p-4 rounded-2xl border-cyan-500/30 z-20"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] font-bold text-white uppercase tracking-tighter">Live Analysis</span>
               </div>
-              <div className="text-2xl font-bold text-white mb-1 font-[family-name:var(--font-outfit)]">
-                {stat.value}
-              </div>
-              <div className="text-xs text-slate-500 uppercase tracking-wider">
-                {stat.label}
+              <div className="h-12 w-32 bg-white/5 rounded-lg flex items-end gap-1 p-2">
+                {[40, 70, 45, 90, 65, 80].map((h, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ height: 0 }}
+                    animate={{ height: `${h}%` }}
+                    className="flex-1 bg-cyan-400/40 rounded-t-sm"
+                  />
+                ))}
               </div>
             </motion.div>
-          ))}
-        </motion.div>
+          </div>
+        </div>
       </div>
-
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#030712] to-transparent pointer-events-none" />
     </section>
   );
 }

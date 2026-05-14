@@ -22,9 +22,11 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
-  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --font-display: 'Outfit', 'Inter', sans-serif;
+  --font-sans: var(--font-inter), 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), 'Fira Code', monospace;
+  --font-display: var(--font-outfit), 'Inter', sans-serif;
+  --font-orbitron: var(--font-orbitron), sans-serif;
+  --font-space: var(--font-space), sans-serif;
 }
 
 /* ======== ROOT RESET ======== */

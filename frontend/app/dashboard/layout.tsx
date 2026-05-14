@@ -39,65 +39,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setMobileSidebar(false);
   }, [pathname]);
 
-  useEffect(() => {
-    // Setup socket listeners for global notifications
-    const { getSocket } = require("@/lib/socket");
-    const socket = getSocket();
-
-    socket.on("notification", (data: any) => {
-      addAlert({
-        id: Math.random().toString(36).substr(2, 9),
-        type: data.type || "system",
-        severity: data.severity || "medium",
-        title: data.title || "New Notification",
-        message: data.message || "",
-        timestamp: new Date(),
-        read: false,
-      });
-    });
-
-    socket.on("inventory_alert", (data: any) => {
-      addAlert({
-        id: Math.random().toString(36).substr(2, 9),
-        type: "inventory",
-        severity: "high",
-        title: "Stock Alert",
-        message: `${data.productName || "Product"} is running low!`,
-        timestamp: new Date(),
-        read: false,
-      });
-    });
-
-    return () => {
-      socket.off("notification");
-      socket.off("inventory_alert");
-    };
-  }, [addAlert]);
-
   return (
-    <div className="flex h-screen overflow-hidden bg-[#030712]">
+    <div className="flex h-screen overflow-hidden bg-[#030712] font-[family-name:var(--font-space)]">
       {/* Desktop Sidebar */}
       <motion.aside
-        animate={{ width: sidebarOpen ? 256 : 72 }}
+        animate={{ width: sidebarOpen ? 260 : 80 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="hidden lg:flex flex-col border-r border-cyan-500/10 bg-[#030712]/90 backdrop-blur-xl relative z-30 shrink-0"
+        className="hidden lg:flex flex-col border-r border-white/5 bg-[#030712]/80 backdrop-blur-3xl relative z-30 shrink-0"
       >
         {/* Logo */}
-        <div className="h-16 flex items-center px-4 border-b border-white/5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center shrink-0">
-              <Zap className="w-4 h-4 text-black" />
+        <div className="h-20 flex items-center px-6 border-b border-white/5">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
+              <Zap className="w-6 h-6 text-black" />
             </div>
             <AnimatePresence>
               {sidebarOpen && (
                 <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="font-bold text-sm font-[family-name:var(--font-outfit)] whitespace-nowrap overflow-hidden"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="font-black text-lg font-[family-name:var(--font-orbitron)] tracking-tighter whitespace-nowrap overflow-hidden"
                 >
-                  <span className="text-white">Retail</span>
-                  <span className="gradient-text">Nova</span>
+                  <span className="text-white">RETAIL</span>
+                  <span className="gradient-text">NOVA</span>
                 </motion.span>
               )}
             </AnimatePresence>
@@ -105,171 +70,115 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           {SIDEBAR_ITEMS.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`sidebar-item ${isActive ? "active" : ""}`}
+                className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all relative group ${
+                  isActive 
+                    ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" 
+                    : "text-slate-500 hover:text-white hover:bg-white/5"
+                }`}
                 title={!sidebarOpen ? item.label : undefined}
               >
-                <item.icon className="w-[18px] h-[18px] shrink-0" />
+                <item.icon className={`w-5 h-5 shrink-0 ${isActive ? "text-cyan-400" : "group-hover:text-cyan-400 transition-colors"}`} />
                 <AnimatePresence>
                   {sidebarOpen && (
                     <motion.span
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: "auto" }}
-                      exit={{ opacity: 0, width: 0 }}
-                      className="whitespace-nowrap overflow-hidden"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap overflow-hidden"
                     >
                       {item.label}
                     </motion.span>
                   )}
                 </AnimatePresence>
+                {isActive && (
+                  <motion.div 
+                    layoutId="sidebar-active"
+                    className="absolute left-0 w-1 h-1/2 bg-cyan-400 rounded-r-full shadow-[0_0_10px_rgba(0,229,255,0.5)]"
+                  />
+                )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Collapse Button */}
-        <div className="p-3 border-t border-white/5">
-          <button onClick={toggleSidebar} className="sidebar-item w-full justify-center">
-            {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-            {sidebarOpen && <span className="text-xs">Collapse</span>}
-          </button>
+        {/* User Profile Area */}
+        <div className="p-4 border-t border-white/5 bg-white/[0.02]">
+          <div className={`flex items-center gap-3 p-2 rounded-2xl ${sidebarOpen ? "bg-white/5" : ""}`}>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center shrink-0 border border-white/10">
+              <UserCircle className="w-5 h-5 text-cyan-400" />
+            </div>
+            {sidebarOpen && (
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] font-black text-white truncate uppercase tracking-tighter">{user?.name || "Nova Core"}</div>
+                <div className="text-[9px] text-cyan-400/60 uppercase font-bold tracking-widest">{user?.role || "Administrator"}</div>
+              </div>
+            )}
+          </div>
         </div>
       </motion.aside>
 
-      {/* Mobile Sidebar Overlay */}
-      <AnimatePresence>
-        {mobileSidebar && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 z-40 lg:hidden"
-              onClick={() => setMobileSidebar(false)}
-            />
-            <motion.aside
-              initial={{ x: -260 }}
-              animate={{ x: 0 }}
-              exit={{ x: -260 }}
-              transition={{ type: "spring", damping: 25 }}
-              className="fixed left-0 top-0 bottom-0 w-64 bg-[#030712] border-r border-cyan-500/10 z-50 flex flex-col lg:hidden"
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        {/* Top Header */}
+        <header className="h-20 flex items-center justify-between px-6 border-b border-white/5 bg-[#030712]/60 backdrop-blur-2xl shrink-0 z-40">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={toggleSidebar}
+              className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-all hover:border-cyan-500/30"
             >
-              <div className="h-16 flex items-center justify-between px-4 border-b border-white/5">
-                <Link href="/" className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-black" />
-                  </div>
-                  <span className="font-bold text-sm font-[family-name:var(--font-outfit)]">
-                    <span className="text-white">Retail</span><span className="gradient-text">Nova</span>
-                  </span>
-                </Link>
-              </div>
-              <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-                {SIDEBAR_ITEMS.map((item) => (
-                  <Link key={item.href} href={item.href} className={`sidebar-item ${pathname === item.href ? "active" : ""}`}>
-                    <item.icon className="w-[18px] h-[18px]" />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </nav>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Bar */}
-        <header className="h-16 flex items-center justify-between px-4 lg:px-6 border-b border-cyan-500/10 bg-[#030712]/80 backdrop-blur-xl shrink-0 z-20">
-          <div className="flex items-center gap-3">
-            <button className="lg:hidden p-2 text-slate-400 hover:text-white" onClick={() => setMobileSidebar(true)}>
               <Menu className="w-5 h-5" />
             </button>
-            <div className="relative hidden sm:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search products, aisles, analytics..."
-                className="w-64 lg:w-80 pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/30 transition-colors"
-              />
-            </div>
+            <div className="h-8 w-[1px] bg-white/10 hidden sm:block" />
+            <h1 className="text-sm font-black text-white uppercase tracking-[0.2em] font-[family-name:var(--font-orbitron)] hidden sm:block">
+              {SIDEBAR_ITEMS.find(i => i.href === pathname)?.label || "RetailNova OS"}
+            </h1>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Live Indicator */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 mr-2">
-              <div className="live-dot" />
-              <span className="text-xs font-medium text-emerald-400">System Live</span>
+          <div className="flex items-center gap-4">
+            {/* Live Data Badge */}
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Global Stream: Active</span>
             </div>
 
             {/* Notifications */}
             <div className="relative">
               <button
-                className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors relative"
                 onClick={() => setShowNotifications(!showNotifications)}
+                className="p-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-all relative group"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                 {unreadAlerts > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 badge-neon text-[10px]">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-cyan-400 to-purple-500 text-black text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/20">
                     {unreadAlerts}
                   </span>
                 )}
               </button>
-
-              <AnimatePresence>
-                {showNotifications && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 top-full mt-2 w-80 glass-strong shadow-2xl shadow-black/50 p-4 z-50"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-semibold text-white">Notifications</h4>
-                      <button onClick={markAllAlertsRead} className="text-xs text-cyan-400 hover:text-cyan-300">Mark all read</button>
-                    </div>
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {alerts.slice(0, 5).map((alert) => (
-                        <div key={alert.id} className={`p-3 rounded-xl ${alert.read ? "opacity-50" : "bg-white/5"}`}>
-                          <div className="flex items-start gap-2">
-                            <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold uppercase border ${getSeverityColor(alert.severity)}`}>
-                              {alert.severity}
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-white truncate">{alert.title}</p>
-                              <p className="text-xs text-slate-500 mt-0.5">{getRelativeTime(alert.timestamp)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
 
-            {/* User */}
-            <div className="flex items-center gap-2 pl-2 ml-1 border-l border-white/5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/20 flex items-center justify-center">
-                <UserCircle className="w-4 h-4 text-cyan-400" />
-              </div>
-              <div className="hidden sm:block">
-                <div className="text-xs font-medium text-white">{user?.name || "Guest"}</div>
-                <div className="text-[10px] text-slate-500 capitalize">{user?.role || "viewer"}</div>
-              </div>
-            </div>
+            <button className="p-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-red-400 transition-all">
+              <LogOut className="w-5 h-5" />
+            </button>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          {children}
+        {/* Content Wrapper */}
+        <main className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {children}
+          </motion.div>
         </main>
       </div>
     </div>
