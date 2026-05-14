@@ -42,24 +42,36 @@ export default function AnalyticsPage() {
   const [weekly, setWeekly] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [demandForecast, setDemandForecast] = useState(DEMAND_FORECAST);
+
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/analytics`)
-      .then(res => res.json())
-      .then(data => {
-        // Format Prisma response to match the chart expected structure
-        // If data is empty (due to no DB), fallback to empty array safely
-        const formatted = (data.data || []).map((d: any) => ({
-          day: new Date(d.timestamp).toLocaleDateString('en-US', { weekday: 'short' }),
-          revenue: d.value,
-          customers: Math.floor(d.value / 40) // Simulated correlation
-        }));
-        setWeekly(formatted);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch analytics", err);
-        setLoading(false);
-      });
+    import('@/lib/api').then(({ default: api }) => {
+      api.get('/analytics')
+        .then(res => {
+          const data = res.data;
+          const formatted = (data.data || []).map((d: any) => ({
+            day: new Date(d.timestamp).toLocaleDateString('en-US', { weekday: 'short' }),
+            revenue: d.value,
+            customers: Math.floor(d.value / 40)
+          }));
+          if (formatted.length > 0) setWeekly(formatted);
+          else setWeekly(WEEKLY); // Use fallback if DB empty
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Failed to fetch analytics", err);
+          setWeekly(WEEKLY); // Fallback
+          setLoading(false);
+        });
+      
+      api.get('/ai')
+        .then(res => {
+          if (res.data?.data?.length > 0) {
+            // Process AI demand forecast if exists
+            // setDemandForecast(processedData);
+          }
+        }).catch(() => {});
+    });
   }, []);
 
   return (
@@ -149,7 +161,7 @@ export default function AnalyticsPage() {
               </tr>
             </thead>
             <tbody>
-              {DEMAND_FORECAST.map((d) => (
+              {demandForecast.map((d) => (
                 <tr key={d.category}>
                   <td className="font-medium text-white">{d.category}</td>
                   <td>{d.current} units</td>

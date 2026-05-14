@@ -1,17 +1,36 @@
 "use client";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, Zap, Clock, User, CheckCircle, ArrowRight } from "lucide-react";
 
-const TASKS = [
-  { id: 1, shelf: "A4 - Beverages", urgency: 95, items: ["Sparkling Water", "Orange Juice"], assignee: "Staff #5", eta: "8 min", status: "urgent" },
-  { id: 2, shelf: "A7 - Personal Care", urgency: 88, items: ["Shampoo", "Body Wash"], assignee: "Staff #12", eta: "12 min", status: "urgent" },
-  { id: 3, shelf: "A2 - Dairy", urgency: 72, items: ["Organic Milk", "Eggs"], assignee: "Staff #3", eta: "15 min", status: "pending" },
-  { id: 4, shelf: "A5 - Snacks", urgency: 55, items: ["Granola", "Almond Butter"], assignee: "Unassigned", eta: "—", status: "pending" },
-  { id: 5, shelf: "A1 - Produce", urgency: 30, items: ["Avocados"], assignee: "Staff #8", eta: "20 min", status: "in-progress" },
-  { id: 6, shelf: "A3 - Bakery", urgency: 15, items: ["Croissants"], assignee: "Staff #8", eta: "25 min", status: "completed" },
-];
-
 export default function RestockingPage() {
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    import('@/lib/api').then(({ default: api }) => {
+      api.get('/inventory')
+        .then(res => {
+          const inventory = res.data.data || [];
+          const critical = inventory.filter((i: any) => i.status === 'critical' || i.status === 'low');
+          const mappedTasks = critical.map((item: any, idx: number) => ({
+            id: item.id,
+            shelf: `${item.shelf?.zone || 'A' + (idx+1)} - ${item.category?.name || 'General'}`,
+            urgency: item.status === 'critical' ? 95 : 70,
+            items: [item.name],
+            assignee: "Staff #" + (Math.floor(Math.random() * 10) + 1),
+            eta: (Math.floor(Math.random() * 20) + 5) + " min",
+            status: item.status === 'critical' ? 'urgent' : 'pending'
+          }));
+          setTasks(mappedTasks);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    });
+  }, []);
+
+  if (loading) return <div className="flex items-center justify-center h-full text-white">Generating AI Restock Tasks...</div>;
+
   return (
     <div className="page-enter space-y-6">
       <div>
@@ -23,9 +42,9 @@ export default function RestockingPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: AlertTriangle, label: "Urgent Tasks", value: "2", color: "text-red-400 bg-red-500/10" },
-          { icon: Clock, label: "Pending", value: "2", color: "text-amber-400 bg-amber-500/10" },
-          { icon: Zap, label: "In Progress", value: "1", color: "text-cyan-400 bg-cyan-500/10" },
+          { icon: AlertTriangle, label: "Urgent Tasks", value: tasks.filter(t => t.status === 'urgent').length.toString(), color: "text-red-400 bg-red-500/10" },
+          { icon: Clock, label: "Pending", value: tasks.filter(t => t.status === 'pending').length.toString(), color: "text-amber-400 bg-amber-500/10" },
+          { icon: Zap, label: "In Progress", value: tasks.filter(t => t.status === 'in-progress').length.toString(), color: "text-cyan-400 bg-cyan-500/10" },
           { icon: CheckCircle, label: "Completed Today", value: "14", color: "text-emerald-400 bg-emerald-500/10" },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="stat-card">
@@ -37,7 +56,7 @@ export default function RestockingPage() {
       </div>
 
       <div className="space-y-3">
-        {TASKS.map((task, i) => (
+        {tasks.map((task, i) => (
           <motion.div
             key={task.id}
             initial={{ opacity: 0, x: -20 }}

@@ -1,8 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Boxes, Package, AlertTriangle, TrendingUp, Search, Filter, ArrowUpDown } from "lucide-react";
 
 export default function InventoryPage() {
@@ -10,16 +9,17 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/inventory`)
-      .then(res => res.json())
-      .then(data => {
-        setInventory(data.data || []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch inventory", err);
-        setLoading(false);
-      });
+    import('@/lib/api').then(({ default: api }) => {
+      api.get('/inventory')
+        .then(res => {
+          setInventory(res.data.data || []);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Failed to fetch inventory", err);
+          setLoading(false);
+        });
+    });
   }, []);
 
   const criticalCount = inventory.filter((i) => i.status === "critical").length;

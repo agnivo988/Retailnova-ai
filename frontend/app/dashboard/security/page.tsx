@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Shield, Camera, AlertTriangle, Eye, Activity, Users, Lock, Bell } from "lucide-react";
 
@@ -10,6 +11,35 @@ const INCIDENTS = [
 ];
 
 export default function SecurityPage() {
+  const [incidents, setIncidents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    import('@/lib/api').then(({ default: api }) => {
+      api.get('/ai')
+        .then(res => {
+          const aiData = res.data.data || [];
+          const securityAlerts = aiData.filter((a: any) => a.type === 'security' || a.confidence > 90);
+          const mappedIncidents = securityAlerts.map((a: any, idx: number) => ({
+            id: a.id,
+            type: a.title || "AI Detected Anomaly",
+            zone: a.location || "Store Area",
+            risk: a.confidence > 90 ? "High" : "Medium",
+            time: "Just now",
+            status: "Monitoring"
+          }));
+          setIncidents(mappedIncidents.length > 0 ? mappedIncidents : INCIDENTS);
+          setLoading(false);
+        })
+        .catch(() => {
+          setIncidents(INCIDENTS);
+          setLoading(false);
+        });
+    });
+  }, []);
+
+  if (loading) return <div className="flex items-center justify-center h-full text-white">Activating AI Security Protocols...</div>;
+
   return (
     <div className="page-enter space-y-6">
       <div>
@@ -21,9 +51,9 @@ export default function SecurityPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Camera, label: "Active Cameras", value: "24", color: "text-emerald-400 bg-emerald-500/10" },
-          { icon: AlertTriangle, label: "Active Alerts", value: "2", color: "text-red-400 bg-red-500/10" },
+          { icon: AlertTriangle, label: "Active Alerts", value: incidents.filter(i => i.risk === 'High').length.toString(), color: "text-red-400 bg-red-500/10" },
           { icon: Lock, label: "Secure Zones", value: "12/12", color: "text-cyan-400 bg-cyan-500/10" },
-          { icon: Activity, label: "Threat Level", value: "Low", color: "text-emerald-400 bg-emerald-500/10" },
+          { icon: Activity, label: "Threat Level", value: incidents.some(i => i.risk === 'High') ? 'High' : 'Low', color: incidents.some(i => i.risk === 'High') ? "text-red-400 bg-red-500/10" : "text-emerald-400 bg-emerald-500/10" },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="stat-card">
             <div className={`p-2 rounded-xl w-fit mb-3 ${s.color}`}><s.icon className="w-4 h-4" /></div>
@@ -35,7 +65,7 @@ export default function SecurityPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6">
         <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2"><Bell className="w-4 h-4 text-red-400" /> Security Incidents</h3>
         <div className="space-y-3">
-          {INCIDENTS.map((inc, i) => (
+          {incidents.map((inc, i) => (
             <motion.div key={inc.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
               className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-red-500/10 transition-colors">
               <div className="flex items-center gap-3">

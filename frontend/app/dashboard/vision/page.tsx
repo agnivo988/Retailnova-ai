@@ -91,6 +91,20 @@ function CameraFeed({ cam, index }: { cam: typeof CAMERA_FEEDS[0]; index: number
 
 export default function VisionPage() {
   const [selectedView, setSelectedView] = useState<"grid" | "analytics">("grid");
+  const [shelves, setShelves] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    import('@/lib/api').then(({ default: api }) => {
+      api.get('/inventory')
+        .then(res => {
+          setShelves(res.data.data || []);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    });
+  }, []);
+  if (loading) return <div className="flex items-center justify-center h-full text-white">Initializing AI Vision Grid...</div>;
 
   return (
     <div className="page-enter space-y-6">
@@ -123,7 +137,7 @@ export default function VisionPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Camera, label: "Active Cameras", value: "6/6", color: "text-emerald-400 bg-emerald-500/10" },
-          { icon: AlertTriangle, label: "Shelf Alerts", value: "3", color: "text-red-400 bg-red-500/10" },
+          { icon: AlertTriangle, label: "Shelf Alerts", value: shelves.filter(s => s.status === 'critical').length.toString(), color: "text-red-400 bg-red-500/10" },
           { icon: Activity, label: "Detection Rate", value: "96.4%", color: "text-cyan-400 bg-cyan-500/10" },
           { icon: TrendingUp, label: "Accuracy", value: "98.7%", color: "text-purple-400 bg-purple-500/10" },
         ].map((s, i) => (
@@ -158,7 +172,7 @@ export default function VisionPage() {
               Shelf Occupancy Analysis
             </h3>
             <div className="space-y-4">
-              {MOCK_SHELVES.map((shelf, i) => (
+              {shelves.map((shelf, i) => (
                 <motion.div
                   key={shelf.id}
                   initial={{ opacity: 0, x: -20 }}
@@ -168,14 +182,14 @@ export default function VisionPage() {
                 >
                   <div className="w-16 text-center">
                     <span className={`text-2xl font-bold font-mono ${
-                      shelf.healthScore > 70 ? "text-emerald-400" :
-                      shelf.healthScore > 30 ? "text-amber-400" : "text-red-400"
-                    }`}>{shelf.healthScore}</span>
+                      (shelf.stock / shelf.capacity) * 100 > 70 ? "text-emerald-400" :
+                      (shelf.stock / shelf.capacity) * 100 > 30 ? "text-amber-400" : "text-red-400"
+                    }`}>{Math.round((shelf.stock / shelf.capacity) * 100)}</span>
                     <p className="text-[10px] text-slate-500 uppercase">Health</p>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-white">{shelf.section} — {shelf.aisle}</span>
+                      <span className="text-sm font-medium text-white">{shelf.product?.name || shelf.section || 'Unknown Section'} — {shelf.shelf?.zone || shelf.aisle || 'N/A'}</span>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                         shelf.status === "optimal" ? "bg-emerald-500/20 text-emerald-400" :
                         shelf.status === "low" ? "bg-amber-500/20 text-amber-400" :
@@ -185,18 +199,16 @@ export default function VisionPage() {
                     <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${shelf.occupancy}%` }}
+                        animate={{ width: `${(shelf.stock / shelf.capacity) * 100}%` }}
                         transition={{ delay: i * 0.1, duration: 0.8 }}
                         className={`h-full rounded-full ${
-                          shelf.occupancy > 70 ? "bg-emerald-400" :
-                          shelf.occupancy > 30 ? "bg-amber-400" : "bg-red-400"
+                          (shelf.stock / shelf.capacity) * 100 > 70 ? "bg-emerald-400" :
+                          (shelf.stock / shelf.capacity) * 100 > 30 ? "bg-amber-400" : "bg-red-400"
                         }`}
                       />
                     </div>
                     <div className="flex gap-2 mt-1.5">
-                      {shelf.products.map((p) => (
-                        <span key={p} className="text-[10px] text-slate-500">{p}</span>
-                      ))}
+                      <span className="text-[10px] text-slate-500">Stock: {shelf.stock}/{shelf.capacity}</span>
                     </div>
                   </div>
                 </motion.div>

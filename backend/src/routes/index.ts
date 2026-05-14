@@ -1,23 +1,30 @@
 import { Router } from 'express';
 import inventoryRoutes from './inventory.routes';
 import analyticsRoutes from './analytics.routes';
-// Placeholder routes for remaining structures
+import productsRoutes from './products.routes';
+import crowdRoutes from './crowd.routes';
+import authRoutes from './auth.routes';
+import usersRoutes from './users.routes';
+import navigationRoutes from './navigation.routes';
+import notificationsRoutes from './notifications.routes';
+import voiceRoutes from './voice.routes';
+import adminRoutes from './admin.routes';
+import reportsRoutes from './reports.routes';
+import aiRoutes from './ai.routes';
+
 const router = Router();
 
 router.use('/inventory', inventoryRoutes);
 router.use('/analytics', analyticsRoutes);
-
-// Fallback handlers for other requested routes to ensure they exist and don't 404 immediately
-const placeholder = (req: any, res: any) => res.json({ success: true, data: [], message: 'Route configured and ready for data' });
-router.use('/auth', placeholder);
-router.use('/users', placeholder);
-router.use('/products', placeholder);
-router.use('/shelves', placeholder);
-router.use('/crowd', placeholder);
-router.use('/navigation', placeholder);
-router.use('/ai', placeholder);
-router.use('/voice', placeholder);
-router.use('/reports', placeholder);
-router.use('/admin', placeholder);
+router.use('/products', productsRoutes);
+router.use('/crowd', crowdRoutes);
+router.use('/auth', authRoutes);
+router.use('/users', usersRoutes);
+router.use('/navigation', navigationRoutes);
+router.use('/notifications', notificationsRoutes);
+router.use('/voice', voiceRoutes);
+router.use('/admin', adminRoutes);
+router.use('/reports', reportsRoutes);
+router.use('/ai', aiRoutes);
 
 export default router;

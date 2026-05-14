@@ -60,21 +60,68 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 }
 
 export default function DashboardPage() {
-  const [liveRevenue, setLiveRevenue] = useState(48247);
-  const [liveCustomers, setLiveCustomers] = useState(1842);
+  const [liveRevenue, setLiveRevenue] = useState(0);
+  const [liveCustomers, setLiveCustomers] = useState(0);
+  const [revenueData, setRevenueData] = useState(REVENUE_DATA);
+  const [demandForecast, setDemandForecast] = useState(DEMAND_FORECAST);
+  const [shelves, setShelves] = useState(MOCK_SHELVES);
+  const [congestion, setCongestion] = useState(MOCK_CONGESTION);
 
   useEffect(() => {
+    // Fetch live data from real API
+    const fetchDashboardData = async () => {
+      try {
+        const { default: api } = await import('@/lib/api');
+        
+        // Parallel API requests
+        const [analyticsRes, shelvesRes, crowdRes] = await Promise.all([
+          api.get('/analytics').catch(() => null),
+          api.get('/inventory').catch(() => null),
+          api.get('/crowd').catch(() => null),
+        ]);
+
+        if (analyticsRes?.data?.data?.length > 0) {
+          // Process analytics data if exists
+        }
+        
+        if (shelvesRes?.data?.data?.length > 0) {
+          // Process shelves data if exists
+        }
+
+        if (crowdRes?.data?.data?.length > 0) {
+          setCongestion(crowdRes.data.data);
+        }
+
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+
+    // Setup socket for real-time updates
+    const { getSocket } = require('@/lib/socket');
+    const socket = getSocket();
+
+    socket.on('analytics_update', (data: any) => {
+      if (data.revenue) setLiveRevenue(data.revenue);
+      if (data.customers) setLiveCustomers(data.customers);
+    });
+
     const interval = setInterval(() => {
       setLiveRevenue((p) => p + Math.floor(Math.random() * 50));
       setLiveCustomers((p) => p + Math.floor(Math.random() * 3));
     }, 3000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      socket.off('analytics_update');
+    };
   }, []);
 
   const shelfStats = {
-    optimal: MOCK_SHELVES.filter((s) => s.status === "optimal").length,
-    low: MOCK_SHELVES.filter((s) => s.status === "low").length,
-    critical: MOCK_SHELVES.filter((s) => s.status === "critical" || s.status === "empty").length,
+    optimal: shelves.filter((s) => s.status === "optimal").length,
+    low: shelves.filter((s) => s.status === "low").length,
+    critical: shelves.filter((s) => s.status === "critical" || s.status === "empty").length,
   };
 
   return (
@@ -115,7 +162,7 @@ export default function DashboardPage() {
             <span className="text-xs text-slate-500">Today</span>
           </div>
           <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={REVENUE_DATA}>
+            <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#00e5ff" stopOpacity={0.3} />
@@ -142,7 +189,7 @@ export default function DashboardPage() {
             Demand Forecast
           </h3>
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={DEMAND_FORECAST} layout="vertical">
+            <BarChart data={demandForecast} layout="vertical">
               <XAxis type="number" tick={{ fill: "#475569", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="category" tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} width={70} />
               <Tooltip content={<ChartTooltip />} />
@@ -162,7 +209,7 @@ export default function DashboardPage() {
             Shelf Health Overview
           </h3>
           <div className="space-y-3">
-            {MOCK_SHELVES.slice(0, 6).map((shelf) => (
+            {shelves.slice(0, 6).map((shelf) => (
               <div key={shelf.id} className="flex items-center gap-3">
                 <span className="text-xs text-slate-500 w-20">{shelf.section}</span>
                 <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
@@ -192,7 +239,7 @@ export default function DashboardPage() {
             Congestion Monitor
           </h3>
           <div className="space-y-3">
-            {MOCK_CONGESTION.map((zone) => (
+            {congestion.map((zone) => (
               <div key={zone.id} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5">
                 <div>
                   <span className="text-sm text-white font-medium">{zone.zone}</span>

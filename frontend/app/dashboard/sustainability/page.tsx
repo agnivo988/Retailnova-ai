@@ -1,8 +1,25 @@
 "use client";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Thermometer, Leaf, Zap, Droplets, Recycle, TrendingDown } from "lucide-react";
 
 export default function SustainabilityPage() {
+  const [metrics, setMetrics] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    import('@/lib/api').then(({ default: api }) => {
+      api.get('/analytics')
+        .then(res => {
+          setMetrics(res.data.data || []);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    });
+  }, []);
+
+  if (loading) return <div className="flex items-center justify-center h-full text-white">Analyzing Sustainability Metrics...</div>;
+
   return (
     <div className="page-enter space-y-6">
       <div>

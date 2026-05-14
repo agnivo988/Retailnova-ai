@@ -3,14 +3,13 @@ import { prisma } from '../config/db';
 
 const router = Router();
 
-// Get analytics dashboard data
 router.get('/', async (req, res) => {
   try {
-    const analytics = await prisma.analytics.findMany({
+    const crowdStats = await prisma.crowdAnalytics.findMany({
       orderBy: { timestamp: 'desc' },
-      take: 20
+      take: 50
     });
-    res.json({ success: true, data: analytics });
+    res.json({ success: true, data: crowdStats });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }

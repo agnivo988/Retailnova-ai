@@ -31,13 +31,48 @@ const SIDEBAR_ITEMS = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { sidebarOpen, toggleSidebar, alerts, unreadAlerts, markAllAlertsRead, user } = useAppStore();
+  const { sidebarOpen, toggleSidebar, alerts, unreadAlerts, markAllAlertsRead, addAlert, user } = useAppStore();
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileSidebar, setMobileSidebar] = useState(false);
 
   useEffect(() => {
     setMobileSidebar(false);
   }, [pathname]);
+
+  useEffect(() => {
+    // Setup socket listeners for global notifications
+    const { getSocket } = require("@/lib/socket");
+    const socket = getSocket();
+
+    socket.on("notification", (data: any) => {
+      addAlert({
+        id: Math.random().toString(36).substr(2, 9),
+        type: data.type || "system",
+        severity: data.severity || "medium",
+        title: data.title || "New Notification",
+        message: data.message || "",
+        timestamp: new Date(),
+        read: false,
+      });
+    });
+
+    socket.on("inventory_alert", (data: any) => {
+      addAlert({
+        id: Math.random().toString(36).substr(2, 9),
+        type: "inventory",
+        severity: "high",
+        title: "Stock Alert",
+        message: `${data.productName || "Product"} is running low!`,
+        timestamp: new Date(),
+        read: false,
+      });
+    });
+
+    return () => {
+      socket.off("notification");
+      socket.off("inventory_alert");
+    };
+  }, [addAlert]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#030712]">

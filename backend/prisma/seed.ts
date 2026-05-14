@@ -1,9 +1,10 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding database...');
+  console.log('🌱 Seeding database...');
   
   // Create Store
   const store = await prisma.store.create({
@@ -23,11 +24,12 @@ async function main() {
   });
 
   // Create Users
+  const hashedAdminPassword = await bcrypt.hash('password', 10);
   await prisma.user.create({
     data: {
       name: 'Admin User',
       email: 'admin@retailnova.ai',
-      password: 'hashed_password_here',
+      password: hashedAdminPassword,
       roleId: adminRole.id,
       storeId: store.id,
     },
@@ -86,18 +88,35 @@ async function main() {
   });
 
   // Analytics Sample
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 24; i++) {
     await prisma.analytics.create({
       data: {
         storeId: store.id,
         metric: 'revenue',
         value: Math.floor(Math.random() * 5000) + 1000,
-        timestamp: new Date(Date.now() - i * 3600000), // Hourly data points
+        timestamp: new Date(Date.now() - i * 3600000), 
       },
+    });
+    
+    await prisma.crowdAnalytics.create({
+      data: {
+        storeId: store.id,
+        zone: 'Checkout',
+        density: Math.floor(Math.random() * 60) + 20,
+        timestamp: new Date(Date.now() - i * 3600000),
+      }
     });
   }
 
-  console.log('Database seeded successfully!');
+  // Create a few notifications
+  await prisma.notification.createMany({
+    data: [
+      { title: 'Low Stock', message: 'Milk is running low in Aisle 4', type: 'inventory', isRead: false },
+      { title: 'Crowd Alert', message: 'High density detected at Checkout', type: 'crowd', isRead: false },
+    ]
+  });
+
+  console.log('✅ Database seeded successfully!');
 }
 
 main()

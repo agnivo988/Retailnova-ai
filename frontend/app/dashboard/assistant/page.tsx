@@ -57,10 +57,30 @@ export default function AssistantPage() {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsTyping(true);
-    await new Promise((r) => setTimeout(r, 1000 + Math.random() * 1000));
-    const aiMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", text: getAIResponse(text), timestamp: new Date() };
-    setMessages((prev) => [...prev, aiMsg]);
-    setIsTyping(false);
+
+    try {
+      const { default: api } = await import('@/lib/api');
+      const res = await api.post('/voice', { text, language });
+      
+      const aiMsg: Message = { 
+        id: (Date.now() + 1).toString(), 
+        role: "assistant", 
+        text: res.data.data?.response || res.data.data?.text || "I'm sorry, I couldn't process that.", 
+        timestamp: new Date() 
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch (error) {
+      console.error("AI Assistant Error:", error);
+      const aiMsg: Message = { 
+        id: (Date.now() + 1).toString(), 
+        role: "assistant", 
+        text: "System communication error. Please check backend connection.", 
+        timestamp: new Date() 
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const toggleListening = () => {

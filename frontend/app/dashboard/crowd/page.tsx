@@ -20,28 +20,34 @@ function getHeatColor(val: number) {
 }
 
 export default function CrowdPage() {
-  const [congestion, setCongestion] = useState(MOCK_CONGESTION);
+  const [congestion, setCongestion] = useState<any[]>([]);
   const [heatmap, setHeatmap] = useState(HEATMAP_GRID);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCongestion((prev) =>
-        prev.map((z) => ({
-          ...z,
-          density: Math.min(100, Math.max(5, z.density + (Math.random() - 0.5) * 8)),
-        }))
-      );
-      setHeatmap((prev) =>
-        prev.map((row) =>
-          row.map((cell) => Math.min(100, Math.max(0, cell + (Math.random() - 0.5) * 10)))
-        )
-      );
-    }, 2500);
-    return () => clearInterval(interval);
+    import('@/lib/api').then(({ default: api }) => {
+      const fetchData = () => {
+        api.get('/crowd')
+          .then(res => {
+            setCongestion(res.data.data || []);
+            setLoading(false);
+          })
+          .catch(err => {
+            console.error("Failed to fetch crowd data", err);
+            setLoading(false);
+          });
+      };
+
+      fetchData();
+      const interval = setInterval(fetchData, 5000);
+      return () => clearInterval(interval);
+    });
   }, []);
 
-  const avgDensity = Math.round(congestion.reduce((a, z) => a + z.density, 0) / congestion.length);
-  const peakZone = congestion.reduce((a, z) => (z.density > a.density ? z : a));
+  if (loading) return <div className="flex items-center justify-center h-full text-white">Loading Crowd Intelligence...</div>;
+
+  const avgDensity = congestion.length > 0 ? Math.round(congestion.reduce((a, z) => a + (z.density || 0), 0) / congestion.length) : 0;
+  const peakZone = congestion.length > 0 ? congestion.reduce((a, z) => ((z.density || 0) > (a.density || 0) ? z : a)) : { zone: 'N/A', density: 0 };
 
   return (
     <div className="page-enter space-y-6">
