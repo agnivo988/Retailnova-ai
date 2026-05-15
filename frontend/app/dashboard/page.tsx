@@ -3,9 +3,20 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  TrendingUp, TrendingDown, DollarSign, Users, Eye,
-  ShoppingCart, AlertTriangle, Zap, Activity,
-  ArrowUpRight, Brain, BarChart3, Package,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Users,
+  Eye,
+  ShoppingCart,
+  AlertTriangle,
+  Zap,
+  Activity,
+  ArrowUpRight,
+  Brain,
+  BarChart3,
+  Package,
+  LucideIcon
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -23,9 +34,22 @@ const fadeIn = (i: number) => ({
 const PIE_COLORS = ["#00e5ff", "#a855f7", "#22d3ee", "#ec4899", "#10b981", "#f59e0b"];
 
 /* ============ Animated Stat Card ============ */
-function StatCard({ icon: Icon, label, value, change, positive, color, index }: {
-  icon: React.ElementType; label: string; value: string; change: string;
-  positive: boolean; color: string; index: number;
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  change,
+  positive,
+  color,
+  index,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  change: string;
+  positive: boolean;
+  color: string;
+  index: number;
 }) {
   return (
     <motion.div {...fadeIn(index)} className="stat-card holographic group">
@@ -89,7 +113,7 @@ export default function DashboardPage() {
         }
 
         if (crowdRes?.data?.data?.length > 0) {
-          setCongestion(crowdRes.data.data);
+         setCongestion(crowdRes?.data?.data);
         }
 
       } catch (error) {

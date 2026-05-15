@@ -2,18 +2,47 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
+
+    "moduleResolution": "node",
+
     "rootDir": "./src",
     "outDir": "./dist",
+
     "strict": true,
+
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+
     "resolveJsonModule": true,
+
+    "types": ["node"],
+
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+
+    "lib": ["ES2022"],
+
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+
+    "ignoreDeprecations": "6.0",
+
+    "sourceMap": true,
+
+    "declaration": false,
+
+    "noImplicitAny": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+
+  "include": [
+    "src/**/*"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
