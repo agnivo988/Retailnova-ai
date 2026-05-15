@@ -21,7 +21,7 @@ const FOOTER_COLS = [
 
 const colItem = {
   hidden:  { opacity: 0, y: 20, filter: "blur(5px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] } },
+  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] as const } },
 };
 
 export default function Footer() {
