@@ -42,9 +42,20 @@ export default function LoginPage() {
     e.preventDefault();
 
     setIsLoading(true);
+
     await new Promise((r) => setTimeout(r, 1200));
-    const match = DEMO_USERS.find((u) => u.email === email) || DEMO_USERS[0];
-    login({ id: "1", name: match.name, email: match.email, role: match.role });
+
+    const match =
+      DEMO_USERS.find((u) => u.email === email) ||
+      DEMO_USERS[0];
+
+    login({
+      id: "1",
+      name: match.name,
+      email: match.email,
+      role: match.role,
+    });
+
     router.push("/dashboard");
   };
 
@@ -52,9 +63,18 @@ export default function LoginPage() {
     const user = DEMO_USERS.find((u) => u.role === role)!;
 
     setEmail(user.email);
+
     setIsLoading(true);
+
     await new Promise((r) => setTimeout(r, 800));
-    login({ id: "1", name: user.name, email: user.email, role: user.role });
+
+    login({
+      id: "1",
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+
     router.push("/dashboard");
   };
 
@@ -125,38 +145,62 @@ export default function LoginPage() {
             ))}
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-4">
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  type="email"
-                  placeholder="IDENTITY@RETAILNOVA.AI"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all font-mono"
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="ENCRYPTED_PASSWORD"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all font-mono"
-                />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
+          {/* Form */}
+          <form
+            onSubmit={handleLogin}
+            className="space-y-5"
+          >
+            {/* Email */}
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+
+              <input
+                type="email"
+                placeholder="IDENTITY@RETAILNOVA.AI"
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
+                className="w-full h-14 rounded-2xl border border-white/10 bg-white/5 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10 transition-all font-mono"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+
+              <input
+                type={
+                  showPassword ? "text" : "password"
+                }
+                placeholder="ENCRYPTED_PASSWORD"
+                value={password}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
+                className="w-full h-14 rounded-2xl border border-white/10 bg-white/5 pl-12 pr-12 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10 transition-all font-mono"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
             </div>
 
             {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full btn-glow flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-[0.2em] !py-4 disabled:opacity-50"
+              className="flex items-center justify-center gap-3 w-full h-14 rounded-2xl bg-gradient-to-r from-cyan-400 to-purple-500 text-black text-[11px] font-black uppercase tracking-[0.2em] shadow-lg shadow-cyan-500/20 hover:scale-[1.01] transition-all disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-black/30 border-t-black animate-spin" />
@@ -180,15 +224,21 @@ export default function LoginPage() {
 
               <div className="flex-1 h-px bg-white/5" />
             </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {DEMO_USERS.map((u) => (
                 <button
                   key={u.role}
-                  onClick={() => quickLogin(u.role)}
-                  className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all group"
+                  onClick={() =>
+                    quickLogin(u.role)
+                  }
+                  className="group flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/[0.02] p-4 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all"
                 >
                   <Shield className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
-                  <span className="text-[9px] font-black text-slate-500 group-hover:text-white uppercase tracking-tighter transition-colors">{u.role}</span>
+
+                  <span className="text-[10px] font-black uppercase tracking-wide text-slate-500 group-hover:text-white transition-colors">
+                    {u.role}
+                  </span>
                 </button>
               ))}
             </div>
