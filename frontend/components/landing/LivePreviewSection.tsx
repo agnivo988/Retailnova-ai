@@ -45,7 +45,7 @@ export default function LivePreviewSection() {
             initial={{ opacity: 0, scale: 0.9, filter: "blur(5px)" }}
             whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+            transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] as const }}
             className="inline-flex items-center justify-center px-4 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-5"
           >
             Intelligence Hub
@@ -55,7 +55,7 @@ export default function LivePreviewSection() {
             initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.21, 0.47, 0.32, 0.98] }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.21, 0.47, 0.32, 0.98] as const }}
             className="w-full max-w-4xl mx-auto text-4xl md:text-5xl font-black text-white font-[family-name:var(--font-orbitron)] mb-6 text-center"
           >
             LIVE AI <span className="gradient-text">ECOSYSTEM</span>
@@ -65,7 +65,7 @@ export default function LivePreviewSection() {
             initial={{ opacity: 0, y: 20, filter: "blur(5px)" }}
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] as const }}
             className="w-full max-w-3xl mx-auto text-slate-400 text-base font-[family-name:var(--font-space)] leading-relaxed text-center"
           >
             A real-time intelligence dashboard monitoring every corner of your retail ecosystem —
@@ -77,7 +77,7 @@ export default function LivePreviewSection() {
         <motion.div
           initial={{ opacity: 0, y: 50, filter: "blur(15px)" }}
           animate={isInView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-          transition={{ duration: 1, ease: [0.21, 0.47, 0.32, 0.98] }}
+          transition={{ duration: 1, ease: [0.21, 0.47, 0.32, 0.98] as const }}
           className="relative glass-strong border border-white/8 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(0,229,255,0.08)]"
         >
           {/* Glass Reflection Overlay */}
