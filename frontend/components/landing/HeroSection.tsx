@@ -61,7 +61,7 @@ export default function HeroSection() {
             <motion.h1
               initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ delay: 0.12, duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+              transition={{ delay: 0.12, duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] as const }}
               className="text-5xl sm:text-6xl xl:text-7xl font-black leading-[1.1] font-[family-name:var(--font-orbitron)] mb-8"
             >
               <span className="text-white">REINVENTING</span>
@@ -75,7 +75,7 @@ export default function HeroSection() {
             <motion.p
               initial={{ opacity: 0, y: 20, filter: "blur(5px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ delay: 0.22, duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+              transition={{ delay: 0.22, duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] as const }}
               className="max-w-md text-lg text-slate-400 font-[family-name:var(--font-space)] leading-relaxed mb-12"
             >
               The most advanced AI retail intelligence platform. Real-time shelf analysis,
@@ -87,7 +87,7 @@ export default function HeroSection() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.32, duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+              transition={{ delay: 0.32, duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] as const }}
               className="flex flex-wrap gap-6 mb-16"
             >
               <Link href="/dashboard" className="btn-glow flex items-center gap-2 group">
@@ -136,7 +136,7 @@ export default function HeroSection() {
               style={{ y: sphereY, x: "-8%", willChange: "transform" }}
               initial={{ opacity: 0, scale: 0.88 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, duration: 1.2, ease: [0.21, 0.47, 0.32, 0.98] }}
+              transition={{ delay: 0.3, duration: 1.2, ease: [0.21, 0.47, 0.32, 0.98] as const }}
               className="relative w-full aspect-square animate-float-slow"
             >
               {/* Outer pulsing glow ring */}
