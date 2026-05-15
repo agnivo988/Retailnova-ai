@@ -3,9 +3,20 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  TrendingUp, TrendingDown, DollarSign, Users, Eye,
-  ShoppingCart, AlertTriangle, Zap, Activity,
-  ArrowUpRight, Brain, BarChart3, Package,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Users,
+  Eye,
+  ShoppingCart,
+  AlertTriangle,
+  Zap,
+  Activity,
+  ArrowUpRight,
+  Brain,
+  BarChart3,
+  Package,
+  LucideIcon
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
