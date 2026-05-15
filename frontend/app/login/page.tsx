@@ -26,22 +26,64 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [tab, setTab] = useState<"login" | "signup">("login");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const [name, setName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    const match = DEMO_USERS.find((u) => u.email === email) || DEMO_USERS[0];
-    login({ id: "1", name: match.name, email: match.email, role: match.role });
-    router.push("/dashboard");
+    try {
+      const { authService } = await import("@/services");
+      
+      if (tab === "login") {
+        const res = await authService.login({ email, password });
+        if (res.success) {
+          localStorage.setItem('token', res.token);
+          login(res.data);
+          router.push("/dashboard");
+        } else {
+          alert(res.error || "Login failed");
+        }
+      } else {
+        if (password !== confirmPassword) {
+          alert("Passwords do not match");
+          return;
+        }
+        const res = await authService.signup({ email, password, name });
+        if (res.success) {
+          alert("Registration successful! Please login.");
+          setTab("login");
+        } else {
+          alert(res.error || "Registration failed");
+        }
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Connection error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const quickLogin = async (role: string) => {
     const user = DEMO_USERS.find((u) => u.role === role)!;
     setEmail(user.email);
+    setPassword("password"); // Default password for demo users
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    login({ id: "1", name: user.name, email: user.email, role: user.role });
-    router.push("/dashboard");
+    
+    try {
+      const { authService } = await import("@/services");
+      const res = await authService.login({ email: user.email, password: "password" });
+      
+      if (res.success) {
+        localStorage.setItem('token', res.token);
+        login(res.data);
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Quick login failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -95,43 +137,86 @@ export default function LoginPage() {
             ))}
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleAuth} className="space-y-5">
             <div className="space-y-4">
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              {tab === "signup" && (
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                    <User className="w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="FULL_NAME"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all font-mono"
+                    required
+                  />
+                </div>
+              )}
+              
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Mail className="w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                </div>
                 <input
                   type="email"
                   placeholder="IDENTITY@RETAILNOVA.AI"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all font-mono"
+                  required
                 />
               </div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Lock className="w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                </div>
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="ENCRYPTED_PASSWORD"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all font-mono"
+                  required
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white z-20 p-1"
+                >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+
+              {tab === "signup" && (
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                    <Shield className="w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                  </div>
+                  <input
+                    type="password"
+                    placeholder="CONFIRM_PASSWORD"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition-all font-mono"
+                    required
+                  />
+                </div>
+              )}
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full btn-glow flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-[0.2em] !py-4 disabled:opacity-50"
+              className="w-full btn-glow flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-[0.2em] !py-4 disabled:opacity-50 mt-2"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
               ) : (
                 <>
-                  INITIALIZE ACCESS
+                  {tab === "login" ? "INITIALIZE ACCESS" : "GENERATE IDENTITY"}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -145,17 +230,20 @@ export default function LoginPage() {
               <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Rapid Deployment</span>
               <div className="flex-1 h-px bg-white/5" />
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {DEMO_USERS.map((u) => (
-                <button
-                  key={u.role}
-                  onClick={() => quickLogin(u.role)}
-                  className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all group"
-                >
-                  <Shield className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
-                  <span className="text-[9px] font-black text-slate-500 group-hover:text-white uppercase tracking-tighter transition-colors">{u.role}</span>
-                </button>
-              ))}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {DEMO_USERS.map((u) => {
+                const RoleIcon = u.role === "admin" ? Shield : u.role === "manager" ? Globe : u.role === "staff" ? Fingerprint : User;
+                return (
+                  <button
+                    key={u.role}
+                    onClick={() => quickLogin(u.role)}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all group"
+                  >
+                    <RoleIcon className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+                    <span className="text-[9px] font-black text-slate-500 group-hover:text-white uppercase tracking-tighter transition-colors">{u.role}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

@@ -23,12 +23,12 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-      scrolled ? "bg-[#030712]/80 backdrop-blur-2xl border-b border-white/5 py-3" : "bg-transparent py-6"
-    }`}>
-      <div className="container-center">
+    <nav className={`sticky top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#030712]/80 backdrop-blur-2xl border-b border-white/5 py-3" : "bg-transparent py-6"
+      }`}>
+      {scrolled && <div className="absolute bottom-0 left-0 right-0 section-divider" aria-hidden />}
+      <div className="section-container relative">
         <div className="flex items-center justify-between">
-          
+
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
@@ -41,12 +41,12 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center space-x-10">
             {NAV_LINKS.map((link) => (
-              <Link 
-                key={link.label} 
+              <Link
+                key={link.label}
                 href={link.href}
-                className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-cyan-400 transition-colors"
+                className="inline-block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-cyan-400 hover:-translate-y-0.5 hover:drop-shadow-[0_0_10px_rgba(0,229,255,0.4)] transition-all duration-300"
               >
                 {link.label}
               </Link>
@@ -58,7 +58,7 @@ export default function Navbar() {
               <Activity className="w-3 h-3 text-emerald-400" />
               <span className="text-[10px] font-bold text-slate-300 uppercase">System Live</span>
             </div>
-            <Link href="/login" className="text-[11px] font-bold uppercase tracking-[0.2em] text-white hover:text-cyan-400 transition-colors">
+            <Link href="/login" className="text-[11px] font-bold uppercase tracking-[0.2em] text-white hover:text-cyan-400 hover:-translate-y-0.5 transition-all duration-300">
               Login
             </Link>
             <Link href="/dashboard" className="btn-glow !py-2.5 !px-6 text-[11px] uppercase tracking-widest">

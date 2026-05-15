@@ -7,6 +7,9 @@ import { Server } from 'socket.io';
 
 dotenv.config();
 
+import { validateEnv } from './utils/env-validator';
+validateEnv();
+
 const app: Application = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -14,6 +17,7 @@ const io = new Server(httpServer, {
 });
 
 import { connectDB } from './config/db';
+import { connectRedis } from './config/redis';
 import apiRoutes from './routes';
 import { errorMiddleware, notFoundMiddleware } from './middleware/error.middleware';
 
@@ -25,25 +29,7 @@ app.use(express.json());
 // API Routes
 app.use('/api/v1', apiRoutes);
 
-// AI Proxy Route
-app.post("/api/ai/chat", async (req, res) => {
-  try {
-    const aiUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
-    const response = await fetch(`${aiUrl}/analyze`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body || {}),
-    });
-
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: "AI Service connection failed" });
-  }
-});
-
-// Base Route
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (req, res) => {
   res.json({ success: true, message: 'RetailNova AI Enterprise API is running' });
 });
 
@@ -78,5 +64,6 @@ const PORT = process.env.PORT || 5000;
 
 httpServer.listen(PORT, async () => {
   await connectDB();
+  await connectRedis();
   console.log(`🚀 RetailNova Enterprise Backend running on port ${PORT}`);
 });

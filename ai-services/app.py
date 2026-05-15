@@ -95,7 +95,10 @@ def process_voice(query: VoiceQuery):
     
     try:
         completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
+            messages=[
+                {"role": "system", "content": "You are Nova, the advanced AI retail assistant for 'RetailNova'. You help store managers with inventory, crowd analytics, and sales insights. Be professional, concise, and helpful."},
+                {"role": "user", "content": query.text}
+            ],
             model="llama3-8b-8192",
         )
         response_text = completion.choices[0].message.content

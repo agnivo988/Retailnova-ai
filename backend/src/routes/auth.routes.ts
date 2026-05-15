@@ -63,10 +63,37 @@ router.post('/register', async (req, res) => {
         roleId: role.id
       }
     });
-
     res.status(201).json({ success: true, data: { id: user.id, email: user.email, name: user.name } });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/me', async (req: any, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ success: false, error: 'No token' });
+
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'retailnova_secret');
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      include: { role: true, store: true }
+    });
+
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+    res.json({
+      success: true,
+      data: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role.name,
+        store: user.store
+      }
+    });
+  } catch (error: any) {
+    res.status(401).json({ success: false, error: 'Invalid token' });
   }
 });
 

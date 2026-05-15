@@ -125,4 +125,14 @@ router.post('/theft-detection', async (req: Request, res: Response) => {
   }
 });
 
+// Generic AI Chat / Assistant
+router.post('/chat', async (req: Request, res: Response) => {
+  try {
+    const data = await proxyToAI('/api/v1/voice-assistant', 'POST', req.body);
+    res.json({ success: true, data });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 export default router;
