@@ -113,7 +113,7 @@ export default function DashboardPage() {
         }
 
         if (crowdRes?.data?.data?.length > 0) {
-          setCongestion(crowdRes.data.data);
+         setCongestion(crowdRes?.data?.data);
         }
 
       } catch (error) {
