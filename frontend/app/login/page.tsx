@@ -147,7 +147,7 @@ export default function LoginPage() {
 
           {/* Form */}
           <form
-            onSubmit={handleLogin}
+            onSubmit={handleAuth}
             className="space-y-5"
           >
             {/* Email */}
