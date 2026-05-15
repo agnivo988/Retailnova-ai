@@ -1,7 +1,1 @@
-{
-  "compilerOptions": {
-    "paths": {
-      "@app/*": ["./src/app/*"]
-    }
-  }
-}
+{ "compilerOptions": { "target": "ES2022", "module": "CommonJS", "rootDir": "./src", "outDir": "./dist", "strict": true, "esModuleInterop": true, "skipLibCheck": true, "forceConsistentCasingInFileNames": true, "resolveJsonModule": true, "paths": { "@/*": ["src/*"] } }, "include": ["src/**/*"], "exclude": ["node_modules", "**/*.spec.ts"] }
