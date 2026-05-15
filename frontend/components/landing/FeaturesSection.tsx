@@ -31,7 +31,7 @@ const containerVariants = {
 
 const cardVariants = {
   hidden:  { opacity: 0, y: 30, filter: "blur(10px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] } },
+  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] as const } },
 };
 
 export default function FeaturesSection() {
@@ -49,7 +49,7 @@ export default function FeaturesSection() {
             initial={{ opacity: 0, scale: 0.9, filter: "blur(5px)" }}
             whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+            transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] as const }}
             className="inline-flex items-center justify-center px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-5"
           >
             Capabilities
@@ -59,7 +59,7 @@ export default function FeaturesSection() {
             initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.21, 0.47, 0.32, 0.98] }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.21, 0.47, 0.32, 0.98] as const }}
             className="w-full max-w-4xl mx-auto text-4xl md:text-5xl font-black text-white font-[family-name:var(--font-orbitron)] mb-6 text-center"
           >
             POWERED BY <span className="gradient-text">NEXT-GEN AI</span>
@@ -69,7 +69,7 @@ export default function FeaturesSection() {
             initial={{ opacity: 0, y: 20, filter: "blur(5px)" }}
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] as const }}
             className="w-full max-w-2xl mx-auto text-slate-400 text-lg font-[family-name:var(--font-space)] leading-relaxed text-center"
           >
             A unified ecosystem of intelligence modules designed to transform
