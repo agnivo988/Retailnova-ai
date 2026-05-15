@@ -6,19 +6,18 @@
     "outDir": "./dist",
 
     "strict": true,
+
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
 
-    "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
+    "types": ["node"],
 
-    "paths": {
-      "@app/*": ["src/app/*"]
-    }
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0"
   },
 
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules"]
 }
